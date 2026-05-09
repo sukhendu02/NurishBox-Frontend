@@ -58,3 +58,39 @@ body {
   position: relative;
   box-shadow: 0 0 40px rgba(0, 0, 0, 0.12);
 }
+
+/* @keyframes cartRipple {
+  0%   { transform: scale(0.8); opacity: 0.8; }
+  60%  { transform: scale(1.8); opacity: 0.3; }
+  100% { transform: scale(2.4); opacity: 0;   }
+} */
+
+@keyframes badgePop {
+  0%   { transform: scale(1);   }
+  40%  { transform: scale(1.5); }
+  70%  { transform: scale(0.9); }
+  100% { transform: scale(1);   }
+}
+
+/* @keyframes bumpBadge {
+  0%, 100% { transform: scale(1);    }
+  50%      { transform: scale(1.15); }
+} */
+
+/* @keyframes navPing {
+  0%   { transform: scale(1);   opacity: 0.3; }
+  100% { transform: scale(2);   opacity: 0;   }
+} */
+
+@keyframes ringGlow {
+  0%   { box-shadow: 0 0 0 0px #E8A020cc,  0 0 0 0px #0D9E7E99; }
+  40%  { box-shadow: 0 0 0 6px #E8A02044,  0 0 0 12px #0D9E7E22; }
+  100% { box-shadow: 0 0 0 10px #E8A02000, 0 0 0 20px #0D9E7E00; }
+}
+
+@keyframes badgePop {
+  0%   { transform: scale(1);   }
+  40%  { transform: scale(1.5); }
+  70%  { transform: scale(0.9); }
+  100% { transform: scale(1);   }
+}

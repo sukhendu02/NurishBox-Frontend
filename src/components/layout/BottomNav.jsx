@@ -9,6 +9,7 @@ import {
   User,
 } from 'lucide-react';
 
+import useCartStore from '../../store/cartStore';
 const navItems = [
   { to: '/', icon: Home, label: 'Home', color: '#0A7560' },
   { to: '/plans', icon: CalendarDays, label: 'Plans', color: '#0D9E7E' },
@@ -25,7 +26,22 @@ export default function BottomNav() {
   const [sliderStyle, setSliderStyle] = useState({ left: 0, width: 0, opacity: 0 });
 
   // 🛒 Cart count - hardcoded for now. Replace later with Context/Redux/Zustand
-  const cartCount = 2;
+
+const cartCount = useCartStore((state) => state.itemCount)
+  
+const [pop, setPop] = useState(false)
+const prevCount  = useRef(cartCount)
+
+useEffect(() => {
+  // Only trigger when count INCREASES (item added)
+  if (cartCount > prevCount.current) {
+    setPop(true)
+    const timer = setTimeout(() => setPop(false), 600)
+    return () => clearTimeout(timer)
+  }
+  prevCount.current = cartCount
+}, [cartCount])
+
 
   const activeIndex = navItems.findIndex((item) =>
     item.to === '/'
@@ -100,6 +116,7 @@ export default function BottomNav() {
                     style={{
                       backgroundColor: isActive ? item.color : 'transparent',
                       boxShadow: isActive ? `0 8px 20px ${item.color}50` : 'none',
+                       animation:  isCart && pop ? 'ringGlow 1.2s ease-out forwards' : 'none',
                     }}
                   >
                     <Icon
@@ -107,16 +124,33 @@ export default function BottomNav() {
                       strokeWidth={isActive ? 2.5 : 2}
                       color={isActive ? '#fff' : '#9CA3AF'}
                       className="transition-all duration-500"
+                      style={{
+      transform:  isCart && pop ? 'scale(1.25)' : 'scale(1)',
+      transition: 'transform 0.2s ease',
+    }}
                     />
 
                     {/* 🔴 Cart Badge */}
                     {isCart && cartCount > 0 && (
-                      <div
-                        className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center border-2 border-white"
-                        style={{ animation: 'bumpBadge 1.5s ease-in-out infinite' }}
-                      >
-                        {cartCount > 99 ? '99+' : cartCount}
-                      </div>
+                      // <div
+                      //   className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center border-2 border-white"
+                      //   style={{ animation: 'bumpBadge 1.5s ease-in-out infinite' }}
+                      // >
+                      //   {cartCount > 25 ? '25+' : cartCount}
+                      // </div>
+                        <div
+      className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1
+                 rounded-full bg-red-500 text-white text-[10px] font-bold
+                 flex items-center justify-center border-2 border-white"
+      style={{
+        animation: pop
+          ? 'badgePop 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) forwards'
+          : 'bumpBadge 1.5s ease-in-out infinite',
+        transform: pop ? 'scale(1.4)' : 'scale(1)',
+      }}
+    >
+      {cartCount > 25 ? '25+' : cartCount}
+    </div>
                     )}
 
                     {/* Active Pulse Ring */}

@@ -18,6 +18,7 @@ import {
 } from 'lucide-react'
 
 import { useProductStore } from '../store/productStore';
+import useCartStore from '../store/cartStore';
 import FoodBadge from '../components/menu/FoodBadge';
 import ProductSkeleton from '../components/menu/ProductSkeleton';
 import NutritionPill from '../components/menu/NutritionPill';
@@ -158,19 +159,7 @@ export default function Home() {
     return () => clearInterval(timer)
   }, [])
 
-  const updateQty = (id, delta) => {
-    setCart((prev) => {
-      const nextQty = Math.max((prev[id] || 0) + delta, 0)
-      if (nextQty === 0) {
-        const clone = { ...prev }
-        delete clone[id]
-        return clone
-      }
-      return { ...prev, [id]: nextQty }
-    })
-  }
-
-  const totalCartCount = Object.values(cart).reduce((a, b) => a + b, 0)
+ 
 
 
   ///////////////////////////////////////////
@@ -219,6 +208,15 @@ export default function Home() {
       goal:         p.goal          || "",
     });
   
+
+
+
+    // -------- CART FUNTIONALITY ------------
+    const addItem        = useCartStore((state) => state.addItem)
+const updateQuantity = useCartStore((state) => state.updateQuantity)
+const removeItem     = useCartStore((state) => state.removeItem)
+const items          = useCartStore((state) => state.items)       // ← reactive
+
 
   return (
     <div className="bg-[#FBFAF7]">
@@ -626,7 +624,7 @@ export default function Home() {
               </div>
             ) : (
               <>
-                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {/* <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                   {products.map((product) => (
                     <ProductCard
                       key={product.id}
@@ -637,8 +635,35 @@ export default function Home() {
                       onPlus={() => updateQty(product.id, 1)}
                     />
                   ))}
-                </div>
+                </div> */}
+<div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+  {products.map((product) => {
+    // Find this product in cart using subscribed items array
+    const cartItem = items.find((i) => i.product?.id === product.id) || null
+    const qty      = cartItem?.quantity || 0
+  
 
+    return (
+      <ProductCard
+        key={product.id}
+        product={mapProduct(product)}
+        qty={qty}
+        onAdd={() => addItem(product.id, 1)}
+        onPlus={() => {
+          if (cartItem) updateQuantity(cartItem.id, qty + 1)
+        }}
+        onMinus={() => {
+          if (!cartItem) return
+          if (qty === 1) {
+            removeItem(cartItem.id)
+          } else {
+            updateQuantity(cartItem.id, qty - 1)
+          }
+        }}
+      />
+    )
+  })}
+</div>
 
             
 

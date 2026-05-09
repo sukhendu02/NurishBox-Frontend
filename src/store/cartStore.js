@@ -1,42 +1,62 @@
-import { create } from 'zustand'
-import { getCart, addToCart, updateItem, removeItem, clearCart } from '../api/cart.api'
+
+
+import { create }   from 'zustand'
+import {
+  getCart,
+  addToCart,
+  updateItem,
+  removeItem  as removeItemApi,
+  clearCart   as clearCartApi,
+} from '../api/cart.api'
 import toast from 'react-hot-toast'
 
-const useCartStore = create((set, get) => ({
-  items: [],
-  itemCount: 0,
-  subtotal: 0,
-  totalSavings: 0,
-  deliveryFee: 30,
-  totalAmount: 0,
+const TOAST_SUCCESS = { style: { background: '#0D9E7E', color: 'white' } }
+const TOAST_ERROR   = { style: { background: '#ef4444', color: 'white' } }
+
+const emptyCart = {
+  items:          [],
+  itemCount:      0,
+  subtotal:       0,
+  totalSavings:   0,
+  deliveryFee:    30,
+  totalAmount:    0,
   freeDeliveryIn: 399,
+}
+
+const useCartStore = create((set, get) => ({
+  ...emptyCart,
   isLoading: false,
-  error: null,
+  error:     null,
 
   setCart: (data) => {
+    if (!data) return
+      console.log('setCart called with:', data.items?.length, 'items')
     set({
-      items: data.items || [],
-      itemCount: data.itemCount || 0,
-      subtotal: data.subtotal || 0,
-      totalSavings: data.totalSavings || 0,
-      deliveryFee: data.deliveryFee || 0,
-      totalAmount: data.totalAmount || 0,
-      freeDeliveryIn: data.freeDeliveryIn || 0,
-      error: null,
+      items:          data.items          ?? [],
+      itemCount:      data.itemCount      ?? 0,
+      subtotal:       data.subtotal       ?? 0,
+      totalSavings:   data.totalSavings   ?? 0,
+      deliveryFee:    data.deliveryFee    ?? 30,
+      totalAmount:    data.totalAmount    ?? 0,
+      freeDeliveryIn: data.freeDeliveryIn ?? 399,
+      error:          null,
     })
+      console.log('setCart called with:', data.items?.length, 'items')
+  },
+
+  getItemByProductId: (productId) => {
+    return get().items.find((item) => item.product?.id === productId) || null
   },
 
   fetchCart: async () => {
+    // console.log('Fetching cart...')
+    set({ isLoading: true, error: null })
     try {
-      set({ isLoading: true })
-      const response = await getCart()
-      if (response.success) {
-        get().setCart(response.data)
-      } else {
-        set({ error: response.error?.message || 'Failed to fetch cart' })
-      }
-    } catch (error) {
-      set({ error: error.message })
+      const res = await getCart()
+      // console.log('Cart fetched:', res.data)
+      get().setCart(res.data)// res.data = { success, data: {...} }
+    } catch (err) {
+      set({ error: err.message })
     } finally {
       set({ isLoading: false })
     }
@@ -44,21 +64,11 @@ const useCartStore = create((set, get) => ({
 
   addItem: async (productId, quantity = 1) => {
     try {
-      const response = await addToCart(productId, quantity)
-      if (response.success) {
-        get().setCart(response.data)
-        toast.success('Added to cart', {
-          style: { background: '#0D9E7E', color: 'white' },
-        })
-      } else {
-        toast.error(response.error?.message || 'Failed to add item', {
-          style: { background: '#ef4444', color: 'white' },
-        })
-      }
-    } catch (error) {
-      toast.error(error.message || 'Failed to add item', {
-        style: { background: '#ef4444', color: 'white' },
-      })
+      const res = await addToCart(productId, quantity)
+      get().setCart(res.data)
+      // toast.success('Added to cart', TOAST_SUCCESS)
+    } catch (err) {
+      toast.error(err.message || 'Failed to add item', TOAST_ERROR)
     }
   },
 
@@ -69,52 +79,36 @@ const useCartStore = create((set, get) => ({
     }
 
     const previousItems = get().items
+
+    // Optimistic update
     set({
-      items: get().items.map((item) =>
+      items: previousItems.map((item) =>
         item.id === itemId ? { ...item, quantity } : item
       ),
     })
 
     try {
-      const response = await updateItem(itemId, quantity)
-      if (response.success) {
-        get().setCart(response.data)
-      } else {
-        set({ items: previousItems })
-        toast.error(response.error?.message || 'Failed to update quantity', {
-          style: { background: '#ef4444', color: 'white' },
-        })
-      }
-    } catch (error) {
+      const res = await updateItem(itemId, quantity)
+      get().setCart(res.data)
+    } catch (err) {
       set({ items: previousItems })
-      toast.error(error.message || 'Failed to update quantity', {
-        style: { background: '#ef4444', color: 'white' },
-      })
+      toast.error(err.message || 'Failed to update', TOAST_ERROR)
     }
   },
 
   removeItem: async (itemId) => {
     const previousItems = get().items
-    set({ items: get().items.filter((item) => item.id !== itemId) })
+
+    // Optimistic update
+    set({ items: previousItems.filter((item) => item.id !== itemId) })
 
     try {
-      const response = await removeItem(itemId)
-      if (response.success) {
-        get().setCart(response.data)
-        toast.success('Item removed', {
-          style: { background: '#0D9E7E', color: 'white' },
-        })
-      } else {
-        set({ items: previousItems })
-        toast.error(response.error?.message || 'Failed to remove item', {
-          style: { background: '#ef4444', color: 'white' },
-        })
-      }
-    } catch (error) {
+      const res = await removeItemApi(itemId)
+      get().setCart(res.data)
+      // toast.success('Item removed', TOAST_SUCCESS)
+    } catch (err) {
       set({ items: previousItems })
-      toast.error(error.message || 'Failed to remove item', {
-        style: { background: '#ef4444', color: 'white' },
-      })
+      toast.error(err.message || 'Failed to remove', TOAST_ERROR)
     }
   },
 
@@ -123,23 +117,12 @@ const useCartStore = create((set, get) => ({
     set({ items: [] })
 
     try {
-      const response = await clearCart()
-      if (response.success) {
-        get().setCart(response.data)
-        toast.success('Cart cleared', {
-          style: { background: '#0D9E7E', color: 'white' },
-        })
-      } else {
-        set({ items: previousItems })
-        toast.error(response.error?.message || 'Failed to clear cart', {
-          style: { background: '#ef4444', color: 'white' },
-        })
-      }
-    } catch (error) {
+      await clearCartApi()
+      set({ ...emptyCart })
+      // toast.success('Cart cleared', TOAST_SUCCESS)
+    } catch (err) {
       set({ items: previousItems })
-      toast.error(error.message || 'Failed to clear cart', {
-        style: { background: '#ef4444', color: 'white' },
-      })
+      toast.error(err.message || 'Failed to clear cart', TOAST_ERROR)
     }
   },
 }))

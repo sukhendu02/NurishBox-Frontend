@@ -138,7 +138,7 @@ export default function ProductCard({
             {qty === 0 ? (
               <button
                 onClick={onAdd}
-                className="inline-flex items-center gap-2 rounded-full bg-[var(--color-brand-dark)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--color-brand-deeper)]"
+                className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-[var(--color-brand-dark)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--color-brand-deeper)]"
               >
                 <Plus size={16} />
                 Add
@@ -147,7 +147,7 @@ export default function ProductCard({
               <div className="inline-flex items-center rounded-full bg-[var(--color-brand-dark)] p-1 text-white shadow">
                 <button
                   onClick={onMinus}
-                  className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-white/10"
+                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full hover:bg-white/10"
                 >
                   <Minus size={16} />
                 </button>
@@ -156,7 +156,7 @@ export default function ProductCard({
                 </span>
                 <button
                   onClick={onPlus}
-                  className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-white/10"
+                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full hover:bg-white/10"
                 >
                   <Plus size={16} />
                 </button>

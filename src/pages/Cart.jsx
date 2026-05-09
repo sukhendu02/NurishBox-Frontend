@@ -5,7 +5,7 @@ import useCartStore from '../store/cartStore'
 import CartSummary from '../components/cart/CartSummary'
 import EmptyCart from '../components/cart/EmptyCart'
 import FreeDeliveryBar from '../components/cart/FreeDeliveryBar'
-
+import CartItem from '../components/cart/CartItem'
 function SkeletonCartItem() {
   return (
     <div
