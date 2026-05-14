@@ -20,6 +20,7 @@ export default function AppRoutes() {
       <Route path="/login" element={<Login />} />
       <Route path="/verify-otp" element={<VerifyOTP />} />
       <Route path="/onboarding" element={<Onboarding />} />
+      
 
       <Route
         path="/account"

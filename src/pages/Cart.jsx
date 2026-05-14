@@ -1,233 +1,787 @@
-import { useEffect, useState } from 'react'
-import useCartStore from '../store/cartStore'
+import { useState, useEffect, useRef } from "react";
+import useCartStore from "../store/cartStore";
+import { Link } from "react-router-dom";
+import {ShoppingCart, Tag,Star, Flame} from "lucide-react";
 
-// import CartItem from '../components/cart/CartItem.jsx'
-import CartSummary from '../components/cart/CartSummary'
-import EmptyCart from '../components/cart/EmptyCart'
-import FreeDeliveryBar from '../components/cart/FreeDeliveryBar'
-import CartItem from '../components/cart/CartItem'
-function SkeletonCartItem() {
-  return (
-    <div
-      style={{
-        backgroundColor: 'white',
-        borderRadius: '1rem',
-        padding: '0.75rem',
-        marginBottom: '0.75rem',
-        display: 'flex',
-        gap: '0.75rem',
-        animation: 'pulse 2s infinite',
-        border: '1px solid #E5E7EB',
-      }}
-    >
-      <div
-        style={{
-          width: '80px',
-          height: '80px',
-          borderRadius: '0.75rem',
-          backgroundColor: '#F3F4F6',
-          flexShrink: 0,
-        }}
-      />
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-        <div style={{ height: '12px', backgroundColor: '#E5E7EB', borderRadius: '0.25rem', width: '70%' }} />
-        <div style={{ height: '12px', backgroundColor: '#E5E7EB', borderRadius: '0.25rem', width: '50%' }} />
-        <div style={{ height: '32px', backgroundColor: '#E5E7EB', borderRadius: '0.5rem', width: '60%', marginTop: 'auto' }} />
-      </div>
-    </div>
-  )
+// ─── SUGGESTIONS (static catalogue – swap with API if needed) ─────────────────
+const SUGGESTIONS = [
+  { id: "s1", name: "Avocado Side",    price: 3.5,  img: "https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?w=300" },
+  { id: "s2", name: "Kombucha",        price: 5.5,  img: "https://images.unsplash.com/photo-1563227812-0ea4c22e6cc8?w=300" },
+  { id: "s3", name: "Chia Pudding",    price: 4.5,  img: "https://images.unsplash.com/photo-1541544741938-0af808871cc0?w=300" },
+  { id: "s4", name: "Wild Berry Shake",price: 5.0,  img: "https://images.unsplash.com/photo-1553530979-7ee2de5a1781?w=300" },
+  { id: "s5", name: "Green Detox",     price: 6.0,  img: "https://images.unsplash.com/photo-1622597467836-f3e80a56a74e?w=300" },
+];
+
+// ─── SVG ICONS ────────────────────────────────────────────────────────────────
+const I = {
+  back:    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>,
+  trash:   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>,
+  plus:    <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/></svg>,
+  minus:   <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><line x1="1" y1="7" x2="13" y2="7"/></svg>,
+  shield:  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
+  lock:    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>,
+  cc:      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>,
+  arrow:   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>,
+  chevR:   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>,
+  question:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3M12 17h.01"/></svg>,
+  leaf:    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 2s5 0 12 7c5 5 6 13 6 13s-8-1-13-6C0 9 2 2 2 2z"/></svg>,
+  truck:   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 4v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>,
+  tag:     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>,
+  empty:   <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 001.95-1.56l1.65-7.44H6"/></svg>,
+};
+
+// ─── SKELETON ─────────────────────────────────────────────────────────────────
+function Skeleton({ className = "" }) {
+  return <div className={`animate-pulse bg-gradient-to-r from-[#e8f0e8] via-[#f3f8f3] to-[#e8f0e8] bg-[length:200%_100%] rounded-lg ${className}`} style={{ backgroundSize: "200% 100%", animation: "shimmer 1.5s infinite" }} />;
 }
 
-export default function Cart() {
-  const { items, itemCount, subtotal, totalSavings, deliveryFee, totalAmount, freeDeliveryIn, isLoading, fetchCart, clearCart } = useCartStore()
-  const [showClearConfirm, setShowClearConfirm] = useState(false)
+function CartItemSkeleton() {
+  return (
+    <div className="flex gap-4 py-5 border-b border-[#eef2ee] last:border-0">
+      <Skeleton className="w-20 h-20 md:w-24 md:h-24 rounded-xl flex-shrink-0" />
+      <div className="flex-1 space-y-2">
+        <Skeleton className="h-4 w-2/3" />
+        <Skeleton className="h-3 w-full" />
+        <Skeleton className="h-3 w-1/2" />
+        <div className="flex justify-between items-center mt-3">
+          <Skeleton className="h-8 w-28 rounded-lg" />
+          <Skeleton className="h-4 w-16" />
+        </div>
+      </div>
+    </div>
+  );
+}
 
-  useEffect(() => {
-    fetchCart()
-  }, [])
+function SummarySkeleton() {
+  return (
+    <div className="space-y-3 p-6">
+      <Skeleton className="h-5 w-1/2" />
+      <Skeleton className="h-10 w-full rounded-xl" />
+      <Skeleton className="h-4 w-full" />
+      <Skeleton className="h-4 w-3/4" />
+      <Skeleton className="h-4 w-full" />
+      <Skeleton className="h-1 w-full mt-2" />
+      <Skeleton className="h-6 w-full mt-2" />
+      <Skeleton className="h-12 w-full rounded-xl mt-4" />
+    </div>
+  );
+}
 
-  const handleClearCart = async () => {
-    await clearCart()
-    setShowClearConfirm(false)
-  }
+// ─── FREE DELIVERY BAR ────────────────────────────────────────────────────────
+function FreeDeliveryBar({ freeDeliveryIn, subtotal, threshold = 399 }) {
+  const pct = Math.min(100, Math.max(4, ((threshold - freeDeliveryIn) / threshold) * 100));
+  const unlocked = freeDeliveryIn <= 0;
 
   return (
-    <div style={{ paddingTop: '4rem', paddingBottom: '10rem', backgroundColor: '#f9fafb', minHeight: '100vh' }}>
-      {/* Add spin animation */}
-      <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
-        }
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
-
-      <div style={{ maxWidth: '430px', margin: '0 auto', padding: '0 1rem' }}>
-        {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <h1 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#033428', margin: 0 }}>
-              My Cart
-            </h1>
-            {itemCount > 0 && (
-              <span
-                style={{
-                  backgroundColor: '#0D9E7E',
-                  color: 'white',
-                  fontSize: '0.75rem',
-                  fontWeight: '600',
-                  borderRadius: '999px',
-                  padding: '0.25rem 0.75rem',
-                  minWidth: '1.5rem',
-                  textAlign: 'center',
-                }}
-              >
-                {itemCount}
-              </span>
-            )}
+    <div className="bg-white border-b  ring-1 ring-gray-200/5 rounded-lg  border-[#eef2ee] px-4 py-3 my-2 md:px-6">
+      <div className="max-w-[1150px] mx-auto">
+        {unlocked ? (
+          <div className="flex items-center gap-2 text-[#0D9E7E] font-semibold text-sm">
+            <span>{I.truck}</span>
+            <span> You've unlocked <strong>free delivery!</strong></span>
           </div>
-
-          {itemCount > 0 && (
-            <button
-              onClick={() => setShowClearConfirm(true)}
-              style={{
-                backgroundColor: 'transparent',
-                color: '#ef4444',
-                border: 'none',
-                fontSize: '0.875rem',
-                fontWeight: '500',
-                cursor: 'pointer',
-              }}
-            >
-              Clear All
-            </button>
-          )}
-        </div>
-
-        {/* Clear Confirmation Dialog */}
-        {showClearConfirm && (
-          <div
-            style={{
-              position: 'fixed',
-              inset: 0,
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-              display: 'flex',
-              alignItems: 'flex-end',
-              zIndex: 50,
-            }}
-          >
-            <div
-              style={{
-                backgroundColor: 'white',
-                borderTopLeftRadius: '1.5rem',
-                borderTopRightRadius: '1.5rem',
-                padding: '1.5rem',
-                width: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '1rem',
-              }}
-            >
-              <h2 style={{ fontSize: '1.125rem', fontWeight: '700', color: '#033428', margin: 0 }}>
-                Are you sure?
-              </h2>
-              <p style={{ fontSize: '0.875rem', color: '#6B7280', margin: 0 }}>
-                This will remove all items from your cart.
-              </p>
-
-              <div style={{ display: 'flex', gap: '1rem' }}>
-                <button
-                  onClick={() => setShowClearConfirm(false)}
-                  style={{
-                    flex: 1,
-                    backgroundColor: '#E8F8F3',
-                    color: '#0D9E7E',
-                    border: 'none',
-                    borderRadius: '0.75rem',
-                    padding: '0.75rem',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                  }}
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleClearCart}
-                  style={{
-                    flex: 1,
-                    backgroundColor: '#ef4444',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '0.75rem',
-                    padding: '0.75rem',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                  }}
-                >
-                  Clear
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Loading State */}
-        {isLoading && items.length === 0 ? (
-          <div style={{ marginBottom: '2rem' }}>
-            {[1, 2, 3].map((i) => (
-              <SkeletonCartItem key={i} />
-            ))}
-          </div>
-        ) : itemCount === 0 ? (
-          /* Empty State */
-          <EmptyCart />
         ) : (
-          /* Cart Items */
-          <div style={{ marginBottom: '2rem' }}>
-            {/* Free Delivery Bar */}
-            {freeDeliveryIn > 0 && (
-              <FreeDeliveryBar freeDeliveryIn={freeDeliveryIn} totalSavings={totalSavings} />
-            )}
-            {deliveryFee === 0 && freeDeliveryIn <= 0 && (
-              <div
-                style={{
-                  backgroundColor: 'white',
-                  borderRadius: '1rem',
-                  padding: '0.75rem 1rem',
-                  marginBottom: '1rem',
-                  border: '1px solid #B2E8D6',
-                  textAlign: 'center',
-                }}
-              >
-                <span style={{ fontSize: '0.875rem', fontWeight: '600', color: '#0D9E7E' }}>
-                  🎉 You got free delivery!
-                </span>
+          <div>
+            <div className="flex justify-between items-center mb-1.5">
+              <div className="flex items-center gap-1.5 text-sm font-semibold text-[#1a2e1a]">
+                {I.truck}
+                <span>Add <span className="text-[#0D9E7E]">₹{freeDeliveryIn.toFixed(0)}</span> more for free delivery</span>
               </div>
-            )}
-
-            {/* Cart Items */}
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              {items.map((item) => (
-                <CartItem key={item.id} item={item} />
-              ))}
+              <span className="text-[11px] text-[#aaa] font-medium">₹{(threshold - freeDeliveryIn).toFixed(0)} / ₹{threshold}</span>
             </div>
+            <div className="h-1.5 bg-[#eef2ee] rounded-full overflow-hidden">
+              <div
+                className="h-full rounded-full transition-all duration-700 ease-out"
+                style={{ width: `${pct}%`, background: "linear-gradient(90deg, #0D9E7E, #5ecba8)" }}
+              />
+            </div>
+            <p className="text-[11px] text-[#bbb] italic mt-1">
+              {pct < 50 ? "Keep going — free delivery is within reach!" : "Almost there! One more item to unlock free shipping."}
+            </p>
           </div>
         )}
       </div>
+    </div>
+  );
+}
 
-      {/* Cart Summary */}
-      {itemCount > 0 && (
-        <CartSummary
-          subtotal={subtotal}
-          totalSavings={totalSavings}
-          deliveryFee={deliveryFee}
-          totalAmount={totalAmount}
-          itemCount={itemCount}
+// ─── CART ITEM CARD ───────────────────────────────────────────────────────────
+function CartItemCard({ item, updateQuantity, removeItem }) {
+  const img = item.product?.photoUrl || item.product?.imageUrl;
+  const name = item.product?.name ?? "Item";
+  const desc = item.product?.description ?? "";
+
+  const handleMinus = () => {
+    if (item.quantity === 1) removeItem(item.id);
+    else updateQuantity(item.id, item.quantity - 1);
+  };
+
+  return (
+    <div className="flex gap-4  md:gap-5 py-5 border-b border-[#eef2ee] last:border-0 items-start group">
+      {/* Image */}
+      <div className="w-[76px] h-[76px] md:w-24 md:h-24 rounded-xl overflow-hidden flex-shrink-0 bg-[#E8F8F3]">
+        {img && <img src={img} alt={name} className="w-full h-full object-cover" />}
+      </div>
+
+      {/* Info */}
+      <div className="flex-1 min-w-0">
+        <div className="flex justify-between items-start">
+          <p className="font-semibold text-[15px] md:text-[17px] text-[#1a2e1a] pr-2 leading-tight">{name}</p>
+          <div className="text-right flex-shrink-0">
+            <p className="font-bold text-[15px] md:text-[17px] text-[#0D9E7E]">₹{item.itemTotal?.toFixed(2)}</p>
+            {item.hasDiscount && item.itemSavings > 0 && (
+              <p className="text-[11px] text-slate-400 font-semibold">Save ₹{item.itemSavings.toFixed(2)}</p>
+            )}
+          </div>
+        </div>
+
+        {desc && <p className="text-[13px] text-[#999] mt-1 leading-snug line-clamp-2">{desc}</p>}
+
+        {item.product?.weight && (
+          <span className="inline-block mt-1 text-[11px] font-semibold text-[#aaa] bg-[#f5f8f5] px-2 py-0.5 rounded-full">{item.product.weight}</span>
+        )}
+
+        <div className="flex items-center justify-between mt-3">
+          {/* Qty control */}
+          <div className="inline-flex items-center border-[1.5px] border-[#dde8dd] rounded-lg bg-[#f8faf8]">
+            <button
+              onClick={handleMinus}
+              className="w-8 h-8 flex cursor-pointer bg-brand-surface text-brand-dark items-center justify-center text-[#555] hover:text-[#0D9E7E] hover:bg-[#f0f9f5] rounded-l-lg transition-colors"
+            >
+              {I.minus}
+            </button>
+            <span className="w-7 text-center text-[14px] font-bold text-[#1a2e1a] select-none">{item.quantity}</span>
+            <button
+              onClick={() => updateQuantity(item.id, item.quantity + 1)}
+              disabled={item.quantity >= 20}
+              className="w-8 h-8 flex cursor-pointer bg-brand-surface text-brand-dark items-center justify-center text-[#555] hover:text-[#0D9E7E] hover:bg-[#f0f9f5] rounded-r-lg transition-colors disabled:opacity-30"
+            >
+              {I.plus}
+            </button>
+          </div>
+
+          {/* Remove */}
+          <button
+            onClick={() => removeItem(item.id)}
+            className="flex items-center cursor-pointer gap-1.5 text-[13px] text-[#ccc] hover:text-red-400 transition-colors"
+          >
+            {I.trash} <span>Remove</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── SUGGESTION CARD (list row) ───────────────────────────────────────────────
+function SuggestRow({ item, onAdd }) {
+  const [added, setAdded] = useState(false);
+  const handle = () => { onAdd(item); setAdded(true); setTimeout(() => setAdded(false), 1500); };
+
+  return (
+    <div className="flex items-center gap-3 py-3 border-b border-[#f0f5f0] last:border-0">
+      <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 bg-[#E8F8F3]">
+        <img src={item.img} alt={item.name} className="w-full h-full object-cover" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="font-semibold text-[14px] text-[#1a2e1a] truncate">{item.name}</p>
+        <p className="font-bold text-[13px] text-[#0D9E7E] mt-0.5">₹{item.price.toFixed(2)}</p>
+      </div>
+      <button
+        onClick={handle}
+        className={`w-8 h-8 rounded-full flex items-center justify-center border-[1.5px] transition-all duration-300 text-base font-bold flex-shrink-0 ${
+          added
+            ? "bg-[#0D9E7E] border-[#0D9E7E] text-white"
+            : "bg-[#f0f7f0] border-[#c2ddc2] text-[#0D9E7E] hover:bg-[#ddf0e8]"
+        }`}
+      >
+        {added ? "✓" : I.plus}
+      </button>
+    </div>
+  );
+}
+
+// ─── SUGGESTION CARD (horizontal tile for mobile) ─────────────────────────────
+function SuggestTile({ item, onAdd }) {
+  const [added, setAdded] = useState(false);
+  const handle = () => { onAdd(item); setAdded(true); setTimeout(() => setAdded(false), 1500); };
+
+  return (
+    <div className="flex-shrink-0 w-36 rounded-2xl overflow-hidden border border-[#eef2ee] bg-white snap-start">
+      <div className="h-24 overflow-hidden">
+        <img src={item.img} alt={item.name} className="w-full h-full object-cover" />
+      </div>
+      <div className="p-2.5 flex items-end justify-between">
+        <div>
+          <p className="text-[12px] font-bold text-[#1a2e1a] leading-tight">{item.name}</p>
+          <p className="text-[12px] font-bold text-[#0D9E7E] mt-0.5">₹{item.price.toFixed(2)}</p>
+        </div>
+        <button
+          onClick={handle}
+          className={`w-7 h-7 rounded-full flex items-center justify-center border-[1.5px] transition-all duration-300 text-sm font-bold flex-shrink-0 ${
+            added
+              ? "bg-[#0D9E7E] border-[#0D9E7E] text-white"
+              : "bg-[#0D9E7E] border-[#0D9E7E] text-white hover:bg-[#0b8a6e]"
+          }`}
+        >
+          {added ? "✓" : "+"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── VITALITY IMPACT ──────────────────────────────────────────────────────────
+function VitalityImpact({ items }) {
+  const protein = items.reduce((s, i) => s + 14 * i.quantity, 0);
+  const pct = Math.min(100, (protein / 60) * 100);
+  return (
+    <div className="border border-[#eef2ee] rounded-2xl p-5 bg-white mt-1">
+      <div className="flex items-start gap-3">
+        <div className="w-9 h-9 rounded-full bg-[#f0f7f0] flex items-center justify-center text-[#0D9E7E] flex-shrink-0">
+          {I.leaf}
+        </div>
+        <div className="flex-1">
+          <p className="font-bold text-[15px] text-[#1a2e1a] mb-1">Your Vitality Impact</p>
+          <p className="text-[13px] text-[#666] leading-relaxed">
+            This meal provides {protein}g of plant-based protein and 100% of your daily Vitamin K.
+            You're supporting 2 local regenerative farms with this order.
+          </p>
+          <div className="mt-3 h-1.5 bg-[#eef2ee] rounded-full overflow-hidden">
+            <div
+              className="h-full rounded-full transition-all duration-700"
+              style={{ width: `${pct}%`, background: "linear-gradient(90deg,#0D9E7E,#5ecba8)" }}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+// ─── OFFERS SECTION ───────────────────────────────────────────────────────────
+function OffersSection({ promoCode, setPromoCode, applyPromo, promoApplied, promoError, discount }) {
+  return (
+    <div className="border border-[#eef2ee] rounded-2xl p-4 bg-white">
+      {/* Header */}
+      <div className="flex items-center gap-2 mb-3">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D9E7E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>
+        </svg>
+        <span className="text-[13px] font-bold text-[#1a2e1a]">Offers & Coupons</span>
+      </div>
+
+      {/* Input row */}
+      <div className="flex gap-2 mb-2">
+        <input
+          value={promoCode}
+          onChange={e => setPromoCode(e.target.value)}
+          placeholder="Enter promo code"
+          className="flex-1 h-10 rounded-xl border-[1.5px] border-[#e0ebe0] px-3 text-[13px] font-semibold text-[#1a2e1a] outline-none bg-[#fafcfa] focus:border-[#0D9E7E] transition-colors placeholder:text-[#ccc] placeholder:font-normal font-[inherit]"
         />
+        <button
+          onClick={applyPromo}
+          className="h-10 px-4 rounded-xl bg-[#f0f7f0] text-[#0D9E7E] border-[1.5px] border-[#c2ddc2] font-bold text-[13px] hover:bg-[#ddf0e8] active:scale-95 transition-all"
+        >
+          Apply
+        </button>
+      </div>
+
+      {/* Applied coupon banner */}
+      {promoApplied && discount > 0 && (
+        <div className="flex items-start gap-2.5 bg-[#f0faf6] border border-[#b6e8d4] rounded-xl px-3 py-2.5 mb-2">
+          <span className="text-[#0D9E7E] mt-0.5 flex-shrink-0">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+          </span>
+          <div className="flex-1 min-w-0">
+            <p className="text-[12px] font-bold text-[#0D9E7E]">{promoCode.toUpperCase()} applied</p>
+            <p className="text-[11px] text-[#0D9E7E] opacity-80 mt-0.5">You save ₹{discount.toFixed(2)} with this code</p>
+          </div>
+          <button
+            onClick={() => { setPromoCode(""); applyPromo.__clear?.(); }}
+            className="text-[11px] font-semibold text-[#0D9E7E] opacity-60 hover:opacity-100 transition-opacity flex-shrink-0 mt-0.5"
+          >
+            Remove
+          </button>
+        </div>
+      )}
+
+      {/* Error */}
+      {promoError && (
+        <p className="text-[12px] text-red-400 font-medium mb-2">{promoError}</p>
+      )}
+
+      {/* View all offers */}
+      <button className="flex items-center gap-1 text-[12px] text-[#0D9E7E] font-semibold hover:underline mt-1">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+        View all offers
+      </button>
+    </div>
+  );
+}
+
+// ─── BILL DETAILS ─────────────────────────────────────────────────────────────
+function BillDetails({ subtotal, deliveryFee, discount, finalTotal, promoApplied, desktop }) {
+  const rows = [
+    {
+      label: "Item total",
+      value: `₹${subtotal.toFixed(2)}`,
+      valueClass: "text-[#1a2e1a] font-semibold",
+      info: null,
+    },
+    {
+      label: "Delivery fee",
+      value: deliveryFee === 0 ? "FREE" : `₹${deliveryFee.toFixed(2)}`,
+      valueClass: deliveryFee === 0 ? "text-[#0D9E7E] font-bold" : "text-[#1a2e1a] font-semibold",
+      info: "Free delivery on orders above ₹399",
+    },
+    ...(promoApplied && discount > 0
+      ? [{
+          label: "Discount",
+          value: `−₹${discount.toFixed(2)}`,
+          valueClass: "text-[#0D9E7E] font-bold",
+          info: null,
+          isDiscount: true,
+        }]
+      : []),
+  ];
+
+  return (
+    <div className="border border-[#eef2ee] rounded-2xl p-4 bg-white">
+      {/* Header */}
+      <div className="flex items-center gap-2 mb-4">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D9E7E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+        </svg>
+        <span className="text-[13px] font-bold text-[#1a2e1a]">Bill Details</span>
+      </div>
+
+      {/* Line items */}
+      <div className="space-y-3">
+        {rows.map(({ label, value, valueClass, info, isDiscount }) => (
+          <div key={label} className="flex items-center justify-between text-[13px]">
+            <div className="flex items-center gap-1.5">
+              <span className={isDiscount ? "text-[#0D9E7E]" : "text-[#666]"}>{label}</span>
+              {info && <InfoTip text={info} />}
+            </div>
+            <span className={valueClass}>{value}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Divider */}
+      <div className="h-px bg-[#eef2ee] my-3.5 border-dashed" style={{ borderTop: "1.5px dashed #eef2ee", background: "none" }} />
+
+      {/* Total row */}
+      <div className="flex items-center justify-between">
+        <span className="text-[15px] font-extrabold text-[#1a2e1a]">To pay</span>
+        <span className="text-[22px] font-black text-[#0D9E7E]">₹{finalTotal.toFixed(2)}</span>
+      </div>
+
+      {/* Savings pill */}
+      {promoApplied && discount > 0 && (
+        <div className="mt-3 flex justify-center">
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#0D9E7E] bg-[#f0faf6] border border-[#b6e8d4] rounded-full px-3 py-1">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            Total savings of ₹{discount.toFixed(2)} on this order
+          </span>
+        </div>
+      )}
+
+      {/* Desktop CTA */}
+      {desktop && (
+        <div className="mt-5">
+          <button className="w-full py-4 rounded-2xl bg-gradient-to-br from-brand-primary to-brand-dark cursor-pointer text-white font-extrabold text-[16px] flex items-center justify-center gap-2.5 shadow-[0_6px_20px_rgba(13,158,126,.3)] hover:scale-[1.01] active:scale-[.98] transition-transform">
+            Place Order
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </button>
+          <div className="flex justify-center gap-4 mt-3.5 text-[#ccc]">
+            {[
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>,
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>,
+            ].map((ic, i) => <span key={i}>{ic}</span>)}
+          </div>
+          <p className="text-center text-[10px] text-[#bbb] uppercase tracking-widest mt-1.5 font-semibold">
+            Secure SSL Encrypted Checkout
+          </p>
+        </div>
       )}
     </div>
-  )
+  );
+}
+
+// ─── INFO TOOLTIP ─────────────────────────────────────────────────────────────
+function InfoTip({ text }) {
+  const [show, setShow] = useState(false);
+  return (
+    <span className="relative inline-flex">
+      <button
+        onMouseEnter={() => setShow(true)}
+        onMouseLeave={() => setShow(false)}
+        onFocus={() => setShow(true)}
+        onBlur={() => setShow(false)}
+        className="text-[#ccc] hover:text-[#999] transition-colors"
+        aria-label={text}
+      >
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+        </svg>
+      </button>
+      {show && (
+        <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 w-44 text-[11px] bg-[#1a2e1a] text-white rounded-lg px-2.5 py-1.5 leading-snug z-10 pointer-events-none shadow-lg">
+          {text}
+          <span className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-[#1a2e1a]" />
+        </span>
+      )}
+    </span>
+  );
+}
+
+// ─── ORDER SUMMARY (composed) ─────────────────────────────────────────────────
+ function OrderSummary({
+  subtotal, deliveryFee, discount, finalTotal,
+  promoApplied, promoCode, setPromoCode, applyPromo, promoError,
+  desktop = false,
+}) {
+  return (
+    <div className={`flex flex-col gap-3 ${desktop ? "" : "pt-1"}`}>
+      {desktop && (
+        <p className="text-[20px] font-bold text-gray-700 tracking-tight">Order Summary</p>
+      )}
+      <OffersSection
+        promoCode={promoCode}
+        setPromoCode={setPromoCode}
+        applyPromo={applyPromo}
+        promoApplied={promoApplied}
+        promoError={promoError}
+        discount={discount}
+      />
+      <BillDetails
+        subtotal={subtotal}
+        deliveryFee={deliveryFee}
+        discount={discount}
+        finalTotal={finalTotal}
+        promoApplied={promoApplied}
+        desktop={desktop}
+      />
+    </div>
+  );
+}
+
+// ─── HELP CARD ────────────────────────────────────────────────────────────────
+function HelpCard() {
+  return (
+    <div className="border border-[#eef2ee] rounded-2xl p-4 bg-white flex items-center gap-3 cursor-pointer mt-4 hover:shadow-md transition-shadow">
+      <span className="text-[#999]">{I.question}</span>
+      <div className="flex-1">
+        <p className="font-bold text-[14px] text-gray-700">Need help with your order?</p>
+        <p className="text-[13px] text-brand-primary font-semibold">Chat with a wellness specialist</p>
+      </div>
+      <span className="text-[#ccc]">{I.chevR}</span>
+    </div>
+  );
+}
+
+// ─── EMPTY STATE ──────────────────────────────────────────────────────────────
+function EmptyCart() {
+  return (
+    // <div className="flex flex-col items-center justify-center py-24 text-center px-6">
+    //   <div className="text-[#c2ddc2] mb-6">{I.empty}</div>
+    //   <p className="text-[22px] font-extrabold text-[#1a2e1a] mb-2">Your cart is empty</p>
+    //   <p className="text-[#999] text-[15px] mb-8 max-w-xs">Looks like you haven't added anything yet. Explore our menu!</p>
+    //   <Link to="/"  className="px-8 py-3 rounded-2xl bg-gradient-to-br from-brand-primary to-brand-dark cursor-pointer text-white font-bold text-[15px] shadow-[0_4px_16px_rgba(13,158,126,.25)] hover:scale-105 transition-transform">
+    //     Browse Menu
+    //   </Link>
+    // </div>
+     <div className="flex flex-col items-center py-10 pt-20 text-center animate-fade-in">
+      <div className="w-22 h-22 rounded-full border border-gray-200 dark:border-gray-700 flex items-center justify-center mb-5 animate-bounce" style={{ animationDuration: "3s" }}>
+        <ShoppingCart size={40} className="text-brand-dark" />
+      </div>
+      <h2 className="text-lg font-bold text-brand-primary dark:text-white mb-1.5">Your cart is empty</h2>
+      <p className="text-sm text-gray-500 dark:text-gray-400 max-w-[300px] leading-relaxed mb-6">
+        You haven't added anything yet. Start browsing to fill it up.
+      </p>
+      {/* <div className="flex gap-2 flex-wrap justify-center">
+        {[{ icon: <Tag size={12} />, label: "Deals" },
+          { icon: <Star size={12} />, label: "Top picks" },
+          { icon: <Flame size={12} />, label: "Trending" }
+        ].map(({ icon, label }) => (
+          <span key={label} className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-700 text-gray-500">
+            {icon} {label}
+          </span>
+        ))}
+      </div> */}
+      <div className="button">
+        <Link to='/' className="px-8 py-3 rounded-2xl bg-gradient-to-br from-brand-primary to-brand-dark cursor-pointer text-white font-bold text-[15px] shadow-[0_4px_16px_rgba(13,158,126,.25)] hover:scale-105 transition-transform">
+          Browse Menu
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+// ─── MAIN CART PAGE ───────────────────────────────────────────────────────────
+export default function Cart() {
+  const items          = useCartStore(s => s.items);
+  const itemCount      = useCartStore(s => s.itemCount);
+  const subtotal       = useCartStore(s => s.subtotal);
+  const deliveryFee    = useCartStore(s => s.deliveryFee);
+  const totalAmount    = useCartStore(s => s.totalAmount);
+  const freeDeliveryIn = useCartStore(s => s.freeDeliveryIn);
+  const isLoading      = useCartStore(s => s.isLoading);
+  const fetchCart      = useCartStore(s => s.fetchCart);
+  const updateQuantity = useCartStore(s => s.updateQuantity);
+  const removeItem     = useCartStore(s => s.removeItem);
+  const addItem        = useCartStore(s => s.addItem);
+
+  const [promoCode, setPromoCode]     = useState("");
+  const [promoApplied, setPromoApplied] = useState(false);
+  const [promoError, setPromoError]   = useState("");
+
+  useEffect(() => { fetchCart(); }, [fetchCart]);
+
+  const discount   = promoApplied ? subtotal * 0.1 : 0;
+  const finalTotal = totalAmount - discount;
+
+  const applyPromo = () => {
+    const c = promoCode.trim().toUpperCase();
+    if (c === "VITALITY24" || c === "HEALTHY10") {
+      setPromoApplied(true); setPromoError("");
+    } else {
+      setPromoApplied(false); setPromoError("Invalid code. Try VITALITY24!");
+    }
+  };
+
+  const handleAddSuggestion = (s) => {
+    // addItem expects (productId, quantity) per the real store signature
+    // For suggestions that don't exist in DB yet, we just fire addItem with the suggestion id
+    addItem(s.id, 1);
+  };
+
+  const summaryProps = {
+    subtotal, deliveryFee, discount, finalTotal,
+    promoApplied, promoCode, setPromoCode, applyPromo, promoError,
+  };
+
+const [initialLoad, setInitialLoad] = useState(true);
+
+useEffect(() => {
+  if (!isLoading) setInitialLoad(false);
+}, [isLoading]);
+
+const showSkeleton = isLoading || initialLoad;
+
+  return (
+    <>
+      <style>{`
+        @keyframes shimmer {
+          0%   { background-position: 200% 0 }
+          100% { background-position: -200% 0 }
+        }
+        .shimmer { animation: shimmer 1.6s infinite linear; background-size: 200% 100%; }
+        .snap-x-scroll { scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+        ::-webkit-scrollbar { width: 0; height: 0; }
+      `}</style>
+
+      <div className="min-h-screen bg-[#FBFAF7]">
+{/* ON EMPTY CART SHOW THIS SKELETON THEN SHOW CART EMPTY AND LOAD NO COMPONENT */}
+     
+
+
+     
+   {showSkeleton?(
+    <>
+      <div className="hidden lg:block">
+          <div className="max-w-[1150px] mx-auto px-12 py-11 grid grid-cols-[1fr_360px] gap-10 items-start">
+         <div>
+
+          <CartItemSkeleton/>
+          <CartItemSkeleton/>
+          <CartItemSkeleton/>
+         </div>
+
+  <div className="sticky top-20">
+<SummarySkeleton/>
+  </div>
+</div>
+</div>
+
+
+    <div className="lg:hidden pb-32">
+          <div className="px-4 pt-5">
+          <CartItemSkeleton/>
+          <CartItemSkeleton/>
+          <CartItemSkeleton/>
+
+     </div>
+      <div className="mt-6  rounded-2xl border  border-[#eef2ee] px-5 py-5">
+<SummarySkeleton/>
+      </div>
+     </div>  
+    
+     </>
+   ):items.length === 0 ? (
+    <EmptyCart />  
+    
+  ):(
+    <>
+   
+    
+     
+
+        
+     
+
+        {/* ── DESKTOP GRID ── */}
+        <div className="hidden lg:block">
+          <div className="max-w-[1150px] mx-auto px-12 py-11 grid grid-cols-[1fr_360px] gap-10 items-start">
+
+            {/* LEFT col */}
+            <div>
+                 {/* ── Free Delivery Banner ── */}
+          {!isLoading && items.length > 0 && (
+            
+          <>
+            <FreeDeliveryBar className="mb-3" freeDeliveryIn={freeDeliveryIn} subtotal={subtotal} threshold={399} />
+          </>
+              )}
+
+
+              {/* Header row */}
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[18px] font-semibold text-brand-dark">Freshly Picked</span>
+                <span className="text-[10px] font-bold tracking-widest text-[#0D9E7E] bg-[#f0f9f5] border border-[#c2ddc2] rounded-full px-4 py-1">
+                  {itemCount} ITEMS
+                </span>
+              </div>
+
+              
+
+              {/* Cart items */}
+              <div className="bg-white rounded-2xl border shadow-md ring-1 ring-black/5 border-[#eef2ee] px-6 mb-8">
+                {isLoading ? (
+                  [1, 2, 3].map(i => <CartItemSkeleton key={i} />)
+                ) :  (
+                  items.map(item => (
+                    <CartItemCard key={item.id} item={item} updateQuantity={updateQuantity} removeItem={removeItem} />
+                  ))
+                )}
+              </div>
+
+              {/* Suggestions */}
+              {!isLoading && items.length > 0 && (
+
+                <>
+                  <h2 className="text-[20px] font-semibold text-gray-700 mb-3 tracking-tight">Complete Your Meal</h2>
+                  <div className="bg-white rounded-2xl border shadow-md  ring-1 ring-black/5 border-[#eef2ee] px-6 py-1 mb-8">
+                    {SUGGESTIONS.map(s => (
+                      <SuggestRow key={s.id} item={s} onAdd={handleAddSuggestion} />
+                    ))}
+                  </div>
+                  {items.length > 0 && <VitalityImpact items={items} />}
+                </>
+              )}
+            </div>
+
+            {/* RIGHT sticky col */}
+            <div className="sticky top-20">
+              {isLoading ? (
+                <div className="bg-white rounded-2xl border  border-[#eef2ee]"><SummarySkeleton /></div>
+              ) :
+              items.length === 0 ? (
+                ""
+              )
+
+              : (
+                <>
+                  <OrderSummary {...summaryProps} desktop />
+                  <HelpCard />
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* ── MOBILE ── */}
+        <div className="lg:hidden pb-32">
+          <div className="px-4 pt-5">
+
+            {/* Header */}
+          {/* Header row */}
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[18px] font-semibold text-brand-dark">Freshly Picked</span>
+                <span className="text-[10px] font-bold tracking-widest text-[#0D9E7E] bg-[#f0f9f5] border border-[#c2ddc2] rounded-full px-4 py-1">
+                  {itemCount} ITEMS
+                </span>
+              </div>
+
+            {/* Cart items */}
+            <div className="bg-white rounded-2xl border border-[#eef2ee] px-4 mb-6">
+              {isLoading ? (
+                [1, 2].map(i => <CartItemSkeleton key={i} />)
+              ) : items.length === 0 ? (
+                <EmptyCart />
+              ) : (
+                items.map(item => (
+                  <CartItemCard key={item.id} item={item} updateQuantity={updateQuantity} removeItem={removeItem} />
+                ))
+              )}
+            </div>
+
+            {/* Horizontal suggestions */}
+            {!isLoading && items.length > 0 && (
+              <div className="mb-6">
+                <h2 className="text-[18px] font-extrabold text-gray-700 mb-3 tracking-tight">Complete Your Meal</h2>
+                <div className="flex gap-3 overflow-x-auto snap-x-scroll pb-1 snap-x-scroll mx-4 px-4">
+                  {SUGGESTIONS.map(s => (
+                    <SuggestTile key={s.id} item={s} onAdd={handleAddSuggestion} />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Vitality */}
+            {!isLoading && items.length > 0 && <VitalityImpact items={items} />}
+
+            {/* Order summary */}
+            <div className="mt-6  rounded-2xl border  border-[#eef2ee] px-5 py-5">
+              <p className="text-[16px] font-extrabold text-[#1a2e1a] mb-4">Order Summary</p>
+              {isLoading ? <SummarySkeleton /> : <OrderSummary {...summaryProps} />}
+            </div>
+
+            <HelpCard />
+          </div>
+        </div>
+
+        {/* ── MOBILE FIXED BOTTOM CTA ── */}
+       
+        
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-[#eef2ee] px-4 py-3 z-50 shadow-[0_-4px_24px_rgba(0,0,0,.08)]">
+          {/* <div className="flex items-center justify-between mb-2.5">
+            <span className="text-[13px] text-[#999]">Total to pay</span>
+            <span className="text-[22px] font-black text-[#0D9E7E]">₹{finalTotal.toFixed(2)}</span>
+          </div> */}
+          <button className="w-full py-4 rounded-2xl bg-gradient-to-br from-brand-primary to-brand-dark text-white font-extrabold text-[16px] flex items-center justify-center gap-2.5 shadow-[0_6px_20px_rgba(13,158,126,.3)] active:scale-[.98] transition-transform">
+            Place Order {I.arrow}
+          </button>
+          <div className="flex justify-center gap-3 mt-2.5 text-[#ccc]">
+            {[I.shield, I.lock, I.cc].map((ic, i) => <span key={i}>{ic}</span>)}
+          </div>
+        </div>
+       
+   </>
+   )}
+      </div>
+    </>
+  );
 }

@@ -18,7 +18,7 @@ const navItems = [
   { to: '/account', icon: User, label: 'Account', color: '#0D9E7E' },
 ];
 
-const AUTH_PATHS = ['/login', '/verify-otp', '/onboarding'];
+const AUTH_PATHS = ['/login', '/verify-otp', '/onboarding','/cart-test',"/cart"];
 
 export default function BottomNav() {
   const location = useLocation();
