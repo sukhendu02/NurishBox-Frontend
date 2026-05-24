@@ -9,13 +9,14 @@ import useCartStore from './store/cartStore'
 function App() {
   const { initializeAuth } = useAuth()
 
+  const fetchCart = useCartStore((state) => state.fetchCart)
+  // useEffect(() => {
+  //   initializeAuth()
+  // }, [initializeAuth])
+  
+  
   useEffect(() => {
     initializeAuth()
-  }, [initializeAuth])
-
-   const fetchCart = useCartStore((state) => state.fetchCart)
-
-  useEffect(() => {
     fetchCart()
   }, [])
   return (

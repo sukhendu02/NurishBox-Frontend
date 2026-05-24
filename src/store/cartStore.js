@@ -33,7 +33,10 @@ const useCartStore = create((set, get) => ({
       console.log('setCart called with:', data.items?.length, 'items')
     set({
       items:          data.items          ?? [],
+     
       itemCount:      data.itemCount      ?? 0,
+     
+     
       subtotal:       data.subtotal       ?? 0,
       totalSavings:   data.totalSavings   ?? 0,
       deliveryFee:    data.deliveryFee    ?? 30,

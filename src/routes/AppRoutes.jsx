@@ -5,10 +5,16 @@ import Home from '../pages/Home'
 import Explore from '../pages/Explore'
 import Plans from '../pages/Plans'
 import Cart from '../pages/Cart'
-import Account from '../pages/Account'
+
 import Login from '../pages/auth/Login'
 import VerifyOTP from '../pages/auth/verifyOTP'
 import Onboarding from '../pages/auth/Onboarding'
+import AccountShell from '../pages/AccountShell.jsx'
+import AccountOverview from '../pages/AccountOverview.jsx'
+import ManageAddress from '../pages/account/ManageAddresses.jsx'
+import Orders from '../pages/account/Orders.jsx'
+import Coupons from '../pages/account/Coupons.jsx'
+
 
 export default function AppRoutes() {
   return (
@@ -22,14 +28,23 @@ export default function AppRoutes() {
       <Route path="/onboarding" element={<Onboarding />} />
       
 
-      <Route
-        path="/account"
-        element={
-          <ProtectedRoute>
-            <Account />
-          </ProtectedRoute>
-        }
-      />
+      {/* Account — shell wraps all children */}
+      <Route path="/account" element={
+         <ProtectedRoute>
+    <AccountShell />
+  </ProtectedRoute>
+      }>
+        <Route index          element={<AccountOverview />} />
+        <Route path="manage-address" element={<ManageAddress />} />
+        <Route path="orders"         element={<Orders />} />
+        <Route path="my-coupons"     element={<Coupons />} />
+        {/* 
+        <Route path="gift-cards"     element={<GiftCards />} />
+        <Route path="favourites"     element={<Favourites />} />
+        <Route path="settings"       element={<Settings />} />
+        <Route path="feedback"       element={<Feedback />} /> */}
+      </Route>
     </Routes>
+
   )
 }
