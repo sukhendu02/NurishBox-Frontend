@@ -6,7 +6,7 @@ import Button from '../../components/ui/Button'
 import { verifyOTP } from '../../api/auth.api'
 import { saveTokens, saveTempToken } from '../../utils/token'
 import useAuthStore from '../../store/authStore'
-
+import useCartStore from '../../store/cartStore'
 const OTP_LENGTH = 6
 const RESEND_SECONDS = 60
 
@@ -34,6 +34,9 @@ export default function VerifyOTP() {
     const id = setTimeout(() => setTimer((t) => t - 1), 1000)
     return () => clearTimeout(id)
   }, [timer])
+
+
+  const fetchCart = useCartStore((s) => s.fetchCart)
 
   function handleChange(index, value) {
     const char = value.replace(/\D/g, '').slice(-1)
@@ -83,6 +86,7 @@ export default function VerifyOTP() {
         // console.log("User data after OTP verification:", data.data.user);
         saveTokens(data.data.accessToken, data.data.refreshToken)
         if (data.data.user) setUser(data.data.user)
+         await fetchCart()
           console.log("User data after OTP verification:", data.data.user);
         toast.success('Login successful!', { style: { fontSize:'12px' } })
         navigate('/')

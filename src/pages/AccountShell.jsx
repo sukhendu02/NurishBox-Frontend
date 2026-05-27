@@ -198,6 +198,7 @@ export function MobilePageSkeleton() {
   );
 }
 
+
 // ─── SIDEBAR (shared between mobile sheet + desktop) ─────────────────────────
 function SidebarContent({ profile, isLoadingProfile, onLogout }) {
   const location = useLocation();
@@ -295,6 +296,10 @@ function SidebarContent({ profile, isLoadingProfile, onLogout }) {
     </div>
   );
 }
+
+
+
+
 
 // ─── ACCOUNT SHELL ────────────────────────────────────────────────────────────
 export default function AccountShell() {

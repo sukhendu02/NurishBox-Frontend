@@ -74,6 +74,7 @@ const FIELD_DEFS = [
   },
 ];
 
+
 // ─── SINGLE FIELD ROW ─────────────────────────────────────────────────────────
 function ProfileFieldRow({ fieldDef, value, profile, onSave }) {
   const { key, label, Icon, type, placeholder, validate, format, sanitize, Badge } = fieldDef;
@@ -175,7 +176,7 @@ function ProfileFieldRow({ fieldDef, value, profile, onSave }) {
           ) : (
             <div className="flex items-center gap-2 flex-wrap">
               <p className="text-[14px] font-semibold text-[#1a2e1a] truncate">
-                {format ? format(value) : value || "—"}
+                {format ? format(value) : value || ""}
               </p>
               {Badge && <Badge profile={profile} />}
             </div>

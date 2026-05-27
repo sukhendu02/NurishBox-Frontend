@@ -39,12 +39,15 @@ const useUserStore = create((set, get) => ({
   },
 
   updateProfile: async (data) => {
+      const previousProfile = get().profile  // ← save for rollback
+
      set(state => ({ profile: { ...state.profile, ...data } }))
     try {
       set({ isSaving: true })
       const response = await updateProfile(data)
       if (response.success) {
         set({ profile: response.data })
+          set(state => ({ profile: { ...state.profile, ...response.data } }))
         toast.success('Profile updated', {
           style: { background: '#0D9E7E', color: 'white' },
         })
@@ -66,6 +69,7 @@ const useUserStore = create((set, get) => ({
   },
 
   fetchAddresses: async () => {
+        //  set(state => ({ profile: { ...state.profile, ...data } }))
     try {
       set({ isLoadingAddresses: true })
       const response = await getAddresses()

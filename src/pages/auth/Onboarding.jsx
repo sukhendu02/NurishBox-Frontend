@@ -7,6 +7,8 @@ import Input from '../../components/ui/Input'
 import { completeProfile } from '../../api/auth.api'
 import { saveTokens, clearTempToken } from '../../utils/token'
 import useAuthStore from '../../store/authStore'
+import useCartStore from '../../store/cartStore'
+
 
 export default function Onboarding() {
   const navigate = useNavigate()
@@ -14,6 +16,9 @@ export default function Onboarding() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
+
+
+  const fetchCart = useCartStore((s) => s.fetchCart)
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -31,7 +36,8 @@ export default function Onboarding() {
       saveTokens(data.data.accessToken, data.data.refreshToken)
       clearTempToken()
       if (data.data.user) setUser(data.data.user)
-      navigate('/')
+        await fetchCart()
+        navigate('/')
     } catch (err) {
       // console.log(err);
       const msg = err?.response?.data?.error?.message || 'Something went wrong. Try again.'
