@@ -10,7 +10,7 @@ import {
   AccountHubSkeleton,
   PreferencesSkeleton,
 } from "./AccountShell";
-import AccountProfile from "./account/Accountprofile";
+import AccountProfile from "./account/AccountProfile";
 
 // ─── PROFILE HEADER ───────────────────────────────────────────────────────────
 function ProfileHeader({ profile }) {
