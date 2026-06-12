@@ -75,14 +75,14 @@ export default function Onboarding() {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <Input
+          <input
             label="Full Name *"
             placeholder="Rahul Sharma"
             value={name}
             onChange={(e) => setName(e.target.value)}
             
           />
-          <Input
+          <input
             label="Email (optional)"
             type="email"
             placeholder="rahul@gmail.com"
