@@ -337,7 +337,7 @@ export default function AccountShell() {
       />
 
       {/* ── MOBILE ─────────────────────────────────────────────── */}
-      <div className="lg:hidden min-h-screen bg-[#f2f6f3] flex flex-col" style={{ fontFamily: "'DM Sans',sans-serif" }}>
+      <div className="lg:hidden min-h-screen bg-[#f2f6f3] flex flex-col">
         <main className="flex-1 overflow-y-auto px-4 pb-28 pt-2">
           <Outlet context={{ profile, isLoadingProfile, onLogout: handleLogout }} />
         </main>
@@ -376,7 +376,8 @@ export default function AccountShell() {
       </div>
 
       {/* ── DESKTOP ────────────────────────────────────────────── */}
-      <div className="hidden lg:flex min-h-screen bg-[#FBFAF7] flex-col" style={{ fontFamily: "'DM Sans',sans-serif" }}>
+      <div className="hidden lg:flex min-h-screen bg-[#FBFAF7] flex-col" 
+      >
         <div className="flex flex-1 max-w-6xl mx-auto w-full px-6 py-8 gap-7">
 
           {/* LEFT sidebar */}

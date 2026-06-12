@@ -8,6 +8,7 @@ import {
   updateAddress,
   setDefaultAddress,
   deleteAddress,
+  getMyOrders,
 } from '../api/user.api'
 import toast from 'react-hot-toast'
 
@@ -255,6 +256,34 @@ const useUserStore = create((set, get) => ({
       set({ isSaving: false })
     }
   },
+
+  // GET ALL ORDERS
+  orders: [],
+ordersPage: 1,
+ordersTotalPages: 1,
+ordersHasNext: false,
+isFetchingOrders: false,
+
+// Add action
+fetchMyOrders: async (page = 1) => {
+  try {
+    set({ isFetchingOrders: true })
+    const response = await getMyOrders(page)
+    if (!response.success) return
+
+    set((state) => ({
+      // Append for infinite scroll, replace for pagination
+      orders: page === 1 ? response.data : [...state.orders, ...response.data],
+      ordersPage: page,
+      ordersTotalPages: response.pagination.totalPage,
+      ordersHasNext: response.pagination.hasNext,
+    }))
+  } catch (err) {
+    console.error('Failed to fetch orders:', err)
+  } finally {
+    set({ isFetchingOrders: false })
+  }
+},
 }))
 
 export default useUserStore

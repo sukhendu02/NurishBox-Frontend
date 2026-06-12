@@ -14,10 +14,15 @@ import AccountOverview from '../pages/AccountOverview.jsx'
 import ManageAddress from '../pages/account/ManageAddresses.jsx'
 import Orders from '../pages/account/Orders.jsx'
 import Coupons from '../pages/account/Coupons.jsx'
+import CheckoutOverlay from '../components/order/CheckoutOverlay.jsx'
+import OrderTracking from '../components/order/OrderTracking.jsx'
 
 
 export default function AppRoutes() {
   return (
+    <>
+   
+    <CheckoutOverlay/>
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/explore" element={<Explore />} />
@@ -37,14 +42,11 @@ export default function AppRoutes() {
         <Route index          element={<AccountOverview />} />
         <Route path="manage-address" element={<ManageAddress />} />
         <Route path="orders"         element={<Orders />} />
+        <Route path="orders/track/:orderId"         element={<OrderTracking/>} />
         <Route path="my-coupons"     element={<Coupons />} />
-        {/* 
-        <Route path="gift-cards"     element={<GiftCards />} />
-        <Route path="favourites"     element={<Favourites />} />
-        <Route path="settings"       element={<Settings />} />
-        <Route path="feedback"       element={<Feedback />} /> */}
+
       </Route>
     </Routes>
-
+ </>
   )
 }

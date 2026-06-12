@@ -1,7 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import useCartStore from "../store/cartStore";
 import { Link } from "react-router-dom";
-import {ShoppingCart, Tag,Star, Flame} from "lucide-react";
+import {ShoppingCart, Tag,Star, Flame, CreditCard, Banknote, BanknoteArrowDownIcon, ArrowBigDownDash, ChevronUp,CheckCircle, AlertCircle} from "lucide-react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { getAccessToken } from "../utils/token";
+import Checkout from "./Checkout";
+import useUserStore from "../store/userStore";
+import useOrderStore from "../store/orderStore";
 
 // ─── SUGGESTIONS (static catalogue – swap with API if needed) ─────────────────
 const SUGGESTIONS = [
@@ -28,6 +34,8 @@ const I = {
   truck:   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 4v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>,
   tag:     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>,
   empty:   <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 001.95-1.56l1.65-7.44H6"/></svg>,
+  cc:<CreditCard/>,
+  cash:<Banknote/>
 };
 
 // ─── SKELETON ─────────────────────────────────────────────────────────────────
@@ -326,7 +334,9 @@ function OffersSection({ promoCode, setPromoCode, applyPromo, promoApplied, prom
 }
 
 // ─── BILL DETAILS ─────────────────────────────────────────────────────────────
-function BillDetails({ subtotal, deliveryFee, discount, finalTotal, promoApplied, desktop }) {
+function BillDetails({ subtotal, deliveryFee, discount, finalTotal, promoApplied, desktop,paymentMethod,paymentmSelect,paymentOptions,setpaymentmSelect,setPaymentMethod,selected,handlePlaceOrder
+
+ }) {
   const rows = [
     {
       label: "Item total",
@@ -366,7 +376,7 @@ function BillDetails({ subtotal, deliveryFee, discount, finalTotal, promoApplied
         {rows.map(({ label, value, valueClass, info, isDiscount }) => (
           <div key={label} className="flex items-center justify-between text-[13px]">
             <div className="flex items-center gap-1.5">
-              <span className={isDiscount ? "text-[#0D9E7E]" : "text-[#666]"}>{label}</span>
+              <span className={isDiscount ? "text-[#3f5a54]" : "text-[#666]"}>{label}</span>
               {info && <InfoTip text={info} />}
             </div>
             <span className={valueClass}>{value}</span>
@@ -398,8 +408,48 @@ function BillDetails({ subtotal, deliveryFee, discount, finalTotal, promoApplied
       {/* Desktop CTA */}
       {desktop && (
         <div className="mt-5">
-          <button className="w-full py-4 rounded-2xl bg-gradient-to-br from-brand-primary to-brand-dark cursor-pointer text-white font-extrabold text-[16px] flex items-center justify-center gap-2.5 shadow-[0_6px_20px_rgba(13,158,126,.3)] hover:scale-[1.01] active:scale-[.98] transition-transform">
-            Place Order
+
+          
+                {paymentmSelect && (
+    <div className=" rounded-2xl border border-[#eef2ee] ">
+      
+      {paymentOptions.map(({ id, label, icon }) => (
+        <button
+          key={id}
+          onClick={() => { setPaymentMethod(id); setpaymentmSelect(false); }}
+          className={`w-full flex items-center gap-3 px-4 py-3 text-[14px] transition-colors ${
+            paymentMethod === id
+              ? "bg-[#f0faf6] text-brand-primary font-medium"
+              : "bg-white text-gray-700"
+          }`}
+        >
+          <span>{icon}</span>
+          {label}
+          {paymentMethod === id && <span className="ml-auto text-brand-primary">{I.check}</span>}
+        </button>
+      ))}
+    </div>
+  )}
+        <div className="p-2">
+       
+
+            <button
+      onClick={() => setpaymentmSelect((prev) => !prev)}
+      className="flex items-center gap-2 flex-1 min-w-0 py-1"
+    >
+      <span className="text-brand-primary">{selected.icon}</span>
+      <span className="text-[14px] font-medium text-gray-800">{selected.label}</span>
+      <span className={`ml-1 transition-transform duration-200 text-gray-400 ${setpaymentmSelect ? "rotate-180" : ""}`}>
+        <ChevronUp  className={`transition-transform duration-200 ${
+          paymentmSelect ? "rotate-180" : ""
+        }`}/>
+      </span>
+       </button>
+          
+           </div>
+       
+          <button onClick={handlePlaceOrder}  className="w-full py-4  rounded-2xl bg-gradient-to-br from-brand-primary to-brand-dark cursor-pointer text-white font-extrabold text-[16px] flex items-center justify-center gap-2.5 shadow-[0_6px_20px_rgba(13,158,126,.3)] hover:scale-[1.01] active:scale-[.98] transition-transform">
+          Place Order
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
             </svg>
@@ -450,9 +500,9 @@ function InfoTip({ text }) {
 // ─── ORDER SUMMARY (composed) ─────────────────────────────────────────────────
  function OrderSummary({
   subtotal, deliveryFee, discount, finalTotal,
-  promoApplied, promoCode, setPromoCode, applyPromo, promoError,
+  promoApplied, promoCode, setPromoCode, applyPromo, promoError, paymentMethod,paymentmSelect,paymentOptions,setpaymentmSelect,setPaymentMethod,selected,handlePlaceOrder,
   desktop = false,
-}) {
+},) {
   return (
     <div className={`flex flex-col gap-3 ${desktop ? "" : "pt-1"}`}>
       {desktop && (
@@ -473,6 +523,14 @@ function InfoTip({ text }) {
         finalTotal={finalTotal}
         promoApplied={promoApplied}
         desktop={desktop}
+        paymentMethod={paymentMethod}
+        paymentmSelect={paymentmSelect}
+        paymentOptions={paymentOptions}
+        setPaymentMethod={setPaymentMethod}
+        selected={selected}
+        setpaymentmSelect={setpaymentmSelect}
+        handlePlaceOrder={handlePlaceOrder}
+      
       />
     </div>
   );
@@ -495,14 +553,7 @@ function HelpCard() {
 // ─── EMPTY STATE ──────────────────────────────────────────────────────────────
 function EmptyCart() {
   return (
-    // <div className="flex flex-col items-center justify-center py-24 text-center px-6">
-    //   <div className="text-[#c2ddc2] mb-6">{I.empty}</div>
-    //   <p className="text-[22px] font-extrabold text-[#1a2e1a] mb-2">Your cart is empty</p>
-    //   <p className="text-[#999] text-[15px] mb-8 max-w-xs">Looks like you haven't added anything yet. Explore our menu!</p>
-    //   <Link to="/"  className="px-8 py-3 rounded-2xl bg-gradient-to-br from-brand-primary to-brand-dark cursor-pointer text-white font-bold text-[15px] shadow-[0_4px_16px_rgba(13,158,126,.25)] hover:scale-105 transition-transform">
-    //     Browse Menu
-    //   </Link>
-    // </div>
+   
      <div className="flex flex-col items-center py-10 pt-20 text-center animate-fade-in">
       <div className="w-22 h-22 rounded-full border border-gray-200 dark:border-gray-700 flex items-center justify-center mb-5 animate-bounce" style={{ animationDuration: "3s" }}>
         <ShoppingCart size={40} className="text-brand-dark" />
@@ -511,16 +562,6 @@ function EmptyCart() {
       <p className="text-sm text-gray-500 dark:text-gray-400 max-w-[300px] leading-relaxed mb-6">
         You haven't added anything yet. Start browsing to fill it up.
       </p>
-      {/* <div className="flex gap-2 flex-wrap justify-center">
-        {[{ icon: <Tag size={12} />, label: "Deals" },
-          { icon: <Star size={12} />, label: "Top picks" },
-          { icon: <Flame size={12} />, label: "Trending" }
-        ].map(({ icon, label }) => (
-          <span key={label} className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-700 text-gray-500">
-            {icon} {label}
-          </span>
-        ))}
-      </div> */}
       <div className="button">
         <Link to='/' className="px-8 py-3 rounded-2xl bg-gradient-to-br from-brand-primary to-brand-dark cursor-pointer text-white font-bold text-[15px] shadow-[0_4px_16px_rgba(13,158,126,.25)] hover:scale-105 transition-transform">
           Browse Menu
@@ -530,8 +571,17 @@ function EmptyCart() {
   );
 }
 
+
+
+
+// ── Helpers ───────────────────────────────────────────────────────
+const getToken   = () => localStorage.getItem('accessToken')
+const genIdemKey = () => crypto.randomUUID()
+
+
 // ─── MAIN CART PAGE ───────────────────────────────────────────────────────────
 export default function Cart() {
+  
   const items          = useCartStore(s => s.items);
   const itemCount      = useCartStore(s => s.itemCount);
   const subtotal       = useCartStore(s => s.subtotal);
@@ -568,10 +618,7 @@ export default function Cart() {
     addItem(s.id, 1);
   };
 
-  const summaryProps = {
-    subtotal, deliveryFee, discount, finalTotal,
-    promoApplied, promoCode, setPromoCode, applyPromo, promoError,
-  };
+ 
 
 const [initialLoad, setInitialLoad] = useState(true);
 
@@ -581,6 +628,146 @@ useEffect(() => {
 
 const showSkeleton = isLoading || initialLoad;
 
+
+
+////////////////////  TESTING ///////////////////////////////
+ const [paymentMethod, setPaymentMethod] = useState('RAZORPAY')
+ const [paymentmSelect, setpaymentmSelect] = useState(false);
+ const paymentOptions = [
+  { id: "RAZORPAY", label: "Pay online", icon:  I.cc },
+  { id: "COD", label: "Cash on delivery", icon: I.cash  },
+];
+
+const selected = paymentOptions.find(o => o.id === paymentMethod) ?? paymentOptions[0];
+
+
+  const [addressId,     setAddressId]     = useState("9e27bf81-9ecd-4b17-b664-f1f7b44bbde7")
+  const [couponCode,    setCouponCode]     = useState('')
+  const [loading,       setLoading]        = useState(false)
+ 
+ 
+// //////// PLACE ORDER /////////////
+  const { addresses } = useUserStore()
+ 
+
+  const checkoutStatus = useOrderStore(
+  state => state.checkoutStatus
+)
+
+const currentOrder = useOrderStore(
+  state => state.currentOrder
+)
+
+const error = useOrderStore(
+  state => state.error
+)
+
+const resetCheckout = useOrderStore(
+  state => state.resetCheckout
+)
+
+const placeOrderAction = useOrderStore(
+  state => state.placeOrderAction
+)
+
+const verifyPaymentAction = useOrderStore(
+  state => state.verifyPaymentAction
+)
+
+    const [specialInstr, setSpecialInstr] = useState('')
+
+      useEffect(() => {
+    const script = document.createElement('script')
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js'
+    script.async = true
+    document.body.appendChild(script)
+    return () => {
+      if (document.body.contains(script)) {
+        document.body.removeChild(script)
+      }
+    }
+  }, [])
+
+
+    // const defaultAddress = addresses.find((addr) => addr.isDefault)
+    const defaultAddress = addressId
+const handlePlaceOrder = async () => {
+    if (!defaultAddress) {
+      alert('Please set a delivery address')
+      return
+    }
+
+    const idemKey =genIdemKey();
+    // console.log(idemKey)
+    const payload = {
+      addressId: defaultAddress,
+      paymentMethod: paymentMethod,
+      ...(specialInstr ? { specialInstructions: specialInstr } : {}),
+    }
+
+    if (paymentMethod === 'COD') {
+      await placeOrderAction(payload, idemKey)
+      return
+    }
+
+      // Razorpay
+    const orderData = await placeOrderAction(payload, idemKey)
+    console.log(orderData)
+    if (!orderData) return
+
+    const options = {
+      key: orderData.keyId,
+      amount: Math.round(orderData.amount * 100),
+      currency: orderData.currency || 'INR',
+      name: 'NurishBox',
+      description: `Order ${orderData.order.orderNumber}`,
+      order_id: orderData.razorpayOrderId,
+
+      handler: async (response) => {
+        useOrderStore.setState({checkoutStatus:"loading"})
+        await verifyPaymentAction({
+          orderId: orderData.order.id,
+          razorpayOrderId: response.razorpay_order_id,
+          razorpayPaymentId: response.razorpay_payment_id,
+          razorpaySignature: response.razorpay_signature,
+        })
+
+      },
+
+      modal: {
+        ondismiss: () => {
+          useOrderStore.setState({ checkoutStatus: null })
+          // User closed Razorpay
+        },
+      },
+
+      prefill: {
+        name: "",
+        contact: '',
+        email: '',
+      },
+
+      
+    }
+     if (window.Razorpay) {
+      const rzp = new window.Razorpay(options)
+      rzp.open()
+    }
+  
+    
+  }
+
+  
+
+  
+
+   const summaryProps = {
+    subtotal, deliveryFee, discount, finalTotal,
+    promoApplied, promoCode, setPromoCode, applyPromo, promoError,paymentMethod,setpaymentmSelect,setPaymentMethod,paymentmSelect,paymentOptions,selected,
+  handlePlaceOrder
+  
+  };
+ 
   return (
     <>
       <style>{`
@@ -593,12 +780,9 @@ const showSkeleton = isLoading || initialLoad;
         ::-webkit-scrollbar { width: 0; height: 0; }
       `}</style>
 
+
       <div className="min-h-screen bg-[#FBFAF7]">
-{/* ON EMPTY CART SHOW THIS SKELETON THEN SHOW CART EMPTY AND LOAD NO COMPONENT */}
-     
-
-
-     
+{/* ON EMPTY CART SHOW THIS SKELETON THEN SHOW CART EMPTY AND LOAD NO COMPONENT */}     
    {showSkeleton?(
     <>
       <div className="hidden lg:block">
@@ -615,8 +799,6 @@ const showSkeleton = isLoading || initialLoad;
   </div>
 </div>
 </div>
-
-
     <div className="lg:hidden pb-32">
           <div className="px-4 pt-5">
           <CartItemSkeleton/>
@@ -632,16 +814,10 @@ const showSkeleton = isLoading || initialLoad;
      </>
    ):items.length === 0 ? (
     <EmptyCart />  
-    
   ):(
     <>
-   
+
     
-     
-
-        
-     
-
         {/* ── DESKTOP GRID ── */}
         <div className="hidden lg:block">
           <div className="max-w-[1150px] mx-auto px-12 py-11 grid grid-cols-[1fr_360px] gap-10 items-start">
@@ -664,8 +840,6 @@ const showSkeleton = isLoading || initialLoad;
                   {itemCount} ITEMS
                 </span>
               </div>
-
-              
 
               {/* Cart items */}
               <div className="bg-white rounded-2xl border shadow-md ring-1 ring-black/5 border-[#eef2ee] px-6 mb-8">
@@ -766,14 +940,47 @@ const showSkeleton = isLoading || initialLoad;
         {/* ── MOBILE FIXED BOTTOM CTA ── */}
        
         
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-[#eef2ee] px-4 py-3 z-50 shadow-[0_-4px_24px_rgba(0,0,0,.08)]">
-          {/* <div className="flex items-center justify-between mb-2.5">
-            <span className="text-[13px] text-[#999]">Total to pay</span>
-            <span className="text-[22px] font-black text-[#0D9E7E]">₹{finalTotal.toFixed(2)}</span>
-          </div> */}
-          <button className="w-full py-4 rounded-2xl bg-gradient-to-br from-brand-primary to-brand-dark text-white font-extrabold text-[16px] flex items-center justify-center gap-2.5 shadow-[0_6px_20px_rgba(13,158,126,.3)] active:scale-[.98] transition-transform">
-            Place Order {I.arrow}
+        <div className="lg:hidden fixed bottom-0 rounded-2xl p-3 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-[#eef2ee] px-4 py-3 z-50 shadow-[0_-4px_24px_rgba(0,0,0,.08)]">
+         
+                {paymentmSelect && (
+    <div className=" rounded-2xl border border-[#eef2ee] ">
+      
+      {paymentOptions.map(({ id, label, icon }) => (
+        <button
+          key={id}
+          onClick={() => { setPaymentMethod(id); setpaymentmSelect(false); }}
+          className={`w-full flex items-center gap-3 px-4 py-3 text-[14px] transition-colors ${
+            paymentMethod === id
+              ? "bg-[#f0faf6] text-brand-primary font-medium"
+              : "bg-white text-gray-700"
+          }`}
+        >
+          <span>{icon}</span>
+          {label}
+          {paymentMethod === id && <span className="ml-auto text-brand-primary">{I.check}</span>}
+        </button>
+      ))}
+    </div>
+  )}
+  
+   <div className="grid grid-cols-3 items-center gap-3">   
+            <button
+      onClick={() => setpaymentmSelect((prev) => !prev)}
+      className="flex items-center gap-2 flex-1 min-w-0 py-1"
+    >
+      <span className="text-brand-primary">{selected.icon}</span>
+      <span className="text-[14px] font-medium text-gray-800">{selected.label}</span>
+      <span className={`ml-1 transition-transform duration-200 text-gray-400 ${setpaymentmSelect ? "rotate-180" : ""}`}>
+        <ChevronUp  className={`transition-transform duration-200 ${
+          paymentmSelect ? "rotate-180" : ""
+        }`}/>
+      </span>
+       </button>
+          <button  onClick={handlePlaceOrder} className=" py-4 col-span-2 rounded-2xl bg-gradient-to-br from-brand-primary to-brand-dark text-white font-extrabold text-[16px] flex items-center justify-center gap-2.5 shadow-[0_6px_20px_rgba(13,158,126,.3)] active:scale-[.98] transition-transform">
+            Place Order  {I.arrow}
           </button>
+          
+           </div>
           <div className="flex justify-center gap-3 mt-2.5 text-[#ccc]">
             {[I.shield, I.lock, I.cc].map((ic, i) => <span key={i}>{ic}</span>)}
           </div>

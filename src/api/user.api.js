@@ -39,3 +39,12 @@ export const deleteAddress = async (id) => {
   const response = await api.delete(`/user/me/addresses/${id}`)
   return response.data
 }
+
+
+// GET ALL ORDERS
+export const getMyOrders = async (page = 1, limit = 10) => {
+  const response = await api.get('/user/my-orders', {
+    params: { page, limit },
+  })
+  return response.data
+}
