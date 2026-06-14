@@ -8,6 +8,8 @@ import { getAccessToken } from "../utils/token";
 import Checkout from "./Checkout";
 import useUserStore from "../store/userStore";
 import useOrderStore from "../store/orderStore";
+import SelectedAddressCard from "../components/cart/SelcectedAddress";
+import useAddressStore from "../store/addressStrore.js";
 
 // ─── SUGGESTIONS (static catalogue – swap with API if needed) ─────────────────
 const SUGGESTIONS = [
@@ -641,13 +643,13 @@ const showSkeleton = isLoading || initialLoad;
 const selected = paymentOptions.find(o => o.id === paymentMethod) ?? paymentOptions[0];
 
 
-  const [addressId,     setAddressId]     = useState("9e27bf81-9ecd-4b17-b664-f1f7b44bbde7")
+  // const [addressId,     setAddressId]     = useState("9e27bf81-9ecd-4b17-b664-f1f7b44bbde7")
   const [couponCode,    setCouponCode]     = useState('')
   const [loading,       setLoading]        = useState(false)
  
  
 // //////// PLACE ORDER /////////////
-  const { addresses } = useUserStore()
+  // const { addresses } = useUserStore()
  
 
   const checkoutStatus = useOrderStore(
@@ -689,18 +691,20 @@ const verifyPaymentAction = useOrderStore(
   }, [])
 
 
-    // const defaultAddress = addresses.find((addr) => addr.isDefault)
-    const defaultAddress = addressId
+    // const deliveryAddress = addresses.find((addr) => addr.isDefault)
+    const deliveryAddress = useAddressStore((s)=>s.selectedAddress);
+
 const handlePlaceOrder = async () => {
-    if (!defaultAddress) {
+    if (!deliveryAddress) {
       alert('Please set a delivery address')
       return
     }
 
+    // console.log(deliveryAddress)
     const idemKey =genIdemKey();
-    // console.log(idemKey)
+   
     const payload = {
-      addressId: defaultAddress,
+      addressId: deliveryAddress.id,
       paymentMethod: paymentMethod,
       ...(specialInstr ? { specialInstructions: specialInstr } : {}),
     }
@@ -865,6 +869,9 @@ const handlePlaceOrder = async () => {
                   {items.length > 0 && <VitalityImpact items={items} />}
                 </>
               )}
+
+              {/* selected addresses */}
+              <SelectedAddressCard/>
             </div>
 
             {/* RIGHT sticky col */}
