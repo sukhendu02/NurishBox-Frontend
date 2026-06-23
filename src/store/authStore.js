@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { getAccessToken } from '../utils/token'
+import useAddressStore from './addressStrore'
 
 const useAuthStore = create((set) => ({
   user: null,
@@ -16,7 +17,10 @@ const useAuthStore = create((set) => ({
 
   setUser: (user) => set({ user, isAuthenticated: true }),
 
-  clearUser: () => set({ user: null, isAuthenticated: false }),
+  clearUser: () =>{
+    set({ user: null, isAuthenticated: false }),
+      useAddressStore.getState().resetAddress() 
+  } 
 
  
 }))

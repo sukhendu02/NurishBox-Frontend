@@ -7,6 +7,8 @@ import { verifyOTP } from '../../api/auth.api'
 import { saveTokens, saveTempToken } from '../../utils/token'
 import useAuthStore from '../../store/authStore'
 import useCartStore from '../../store/cartStore'
+import useAddressStore from '../../store/addressStrore'
+
 const OTP_LENGTH = 6
 const RESEND_SECONDS = 60
 
@@ -89,6 +91,7 @@ export default function VerifyOTP() {
          await fetchCart()
           console.log("User data after OTP verification:", data.data.user);
         toast.success('Login successful!', { style: { fontSize:'12px' } })
+        await useAddressStore.getState().initAddress()
         navigate('/')
       }
     } catch (err) {

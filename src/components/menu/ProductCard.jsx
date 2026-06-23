@@ -7,6 +7,9 @@ import { Plus, Minus, WeightTilde } from "lucide-react";
 export default function ProductCard({
   product,
   qty,
+  canOrder,
+  status,
+  message,
   onAdd,
   onMinus,
   onPlus,
@@ -17,6 +20,13 @@ export default function ProductCard({
   const hasDiscount = product.sellingPrice < product.price
   const showMore = product.description.length > 100
 
+// INVENTORY STATE
+  const inv          = product.inventory?.[0]
+  const inStock      = inv ? (inv.quantity > 0 && inv.isAvailable) : true
+  const isOrderable  = canOrder && inStock
+
+    // B/W when not orderable for better ui
+   const bwClass = !isOrderable ? 'grayscale opacity-60' : ''
   return (
     <article className="overflow-hidden rounded-[28px] bg-white shadow-sm ring-1 ring-black/5 transition hover:shadow-md">
 
@@ -37,6 +47,16 @@ export default function ProductCard({
           <div className="absolute left-3 top-3">
             <FoodBadge type={product.type} />
           </div>
+       
+
+  {/* Out of stock overlay */}
+          {!inStock && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+              <span className="rounded-full bg-white/90 px-4 py-1.5 text-xs font-bold text-gray-700 shadow">
+                Out of Stock
+              </span>
+            </div>
+          )}
         </div>
 
         {/* ── CONTENT ────────────────────────────────────────────────── */}
@@ -135,7 +155,7 @@ export default function ProductCard({
             </span>
           )}
 
-            {qty === 0 ? (
+            {/* {qty === 0 ? (
               <button
                 onClick={onAdd}
                 className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-[var(--color-brand-dark)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--color-brand-deeper)]"
@@ -144,6 +164,62 @@ export default function ProductCard({
                 Add
               </button>
             ) : (
+              <div className="inline-flex items-center rounded-full bg-[var(--color-brand-dark)] p-1 text-white shadow">
+                <button
+                  onClick={onMinus}
+                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full hover:bg-white/10"
+                >
+                  <Minus size={16} />
+                </button>
+                <span className="min-w-[34px] text-center text-sm font-bold">
+                  {qty}
+                </span>
+                <button
+                  onClick={onPlus}
+                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full hover:bg-white/10"
+                >
+                  <Plus size={16} />
+                </button>
+              </div>
+            )} */}
+
+
+                  {/* State 1: not orderable (kitchen closed / not serviceable) */}
+            {!canOrder && (
+              <button
+                disabled
+                className="inline-flex items-center gap-2 rounded-full bg-gray-100 px-5 py-2.5 text-xs font-semibold text-gray-400 cursor-not-allowed"
+              >
+              
+                {/* Add */}
+                
+                {message}
+              </button>
+            )}
+ 
+            {/* State 2: orderable but out of stock */}
+            {canOrder && !inStock && (
+              <button
+                disabled
+                className="inline-flex items-center gap-2 rounded-full bg-gray-100 px-5 py-2.5 text-sm font-semibold text-gray-500 cursor-not-allowed"
+              >
+                Not Available
+              </button>
+            )}
+ 
+            {/* State 3: orderable + in stock + not in cart */}
+            {canOrder && inStock && qty === 0 && (
+              <button
+                onClick={onAdd}
+                className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-[var(--color-brand-dark)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--color-brand-deeper)]"
+              >
+                <Plus size={16} />
+                Add
+              </button>
+            )}
+ 
+            {/* State 4: orderable + in stock + in cart */}
+            {canOrder && inStock && qty > 0 && (
               <div className="inline-flex items-center rounded-full bg-[var(--color-brand-dark)] p-1 text-white shadow">
                 <button
                   onClick={onMinus}

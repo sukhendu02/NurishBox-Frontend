@@ -24,6 +24,7 @@ import ProductSkeleton from '../components/menu/ProductSkeleton';
 import NutritionPill from '../components/menu/NutritionPill';
 import SidebarCard from '../components/menu/SidebarCard';
 import ProductCard from '../components/menu/ProductCard';
+import KitchenStatusBanner from "../components/menu/KitchenStatusBanner"
 const promoSlides = [
   {
     id: 1,
@@ -167,8 +168,14 @@ export default function Home() {
       products, total, isLoading, isFetchingMore,
       hasNext, filters, fetchProducts, loadMore,
       setFilter, resetFilters,
+       status, canOrder, message,
     } = useProductStore();
   
+    const hasActiveFilters = 
+  filters.category !== 'All Items' ||
+  filters.type !== '' ||
+  filters.sortBy !== '' ||
+  filters.discounted !== ''
     // ── Initial load ──────────────────────────────────────────────
     useEffect(() => {
       fetchProducts();
@@ -206,6 +213,7 @@ export default function Home() {
       fat:          parseFloat(p.fatG      || 0),
       weight:       p.weight        || null,
       goal:         p.goal          || "",
+       inventory:   p.inventory || [],
     });
   
 
@@ -493,24 +501,7 @@ const items          = useCartStore((state) => state.items)       // ← reactiv
           <aside className="hidden lg:block">
             <div className="sticky top-4 space-y-5">
             
-              {/* <SidebarCard title="Categories">
-                <div className="space-y-2">
-                  {categories.map((cat) => (
-                    <button
-                      key={cat}
-                      onClick={() => setFilter("category", cat)}
-                      className={`flex w-full items-center justify-between rounded-2xl px-4 py-3 text-left text-xs cursor-pointer font-semibold transition ${
-                        filters.category === cat
-                          ? 'bg-[var(--color-brand-surface)] text-[var(--color-text-brand)] ring-1 ring-[var(--color-brand-tint)]'
-                          : 'bg-white text-gray-700 hover:bg-gray-50 ring-1 ring-gray-100'
-                      }`}
-                    >
-                      {cat}
-                      {filters.category === cat && <Check size={15} />}
-                    </button>
-                  ))}
-                </div>
-              </SidebarCard> */}
+             
               <SidebarCard title="Categories">
                 <div className="space-y-2">
                   {categories.map((cat) => (
@@ -604,17 +595,22 @@ const items          = useCartStore((state) => state.items)       // ← reactiv
                 <h2 className="text-3xl font-bold tracking-tight text-[#111827]">
                   Featured Meals
                 </h2>
+    
                 <p className="mt-1 text-sm text-gray-500">
                   {/* {filteredProducts.length} items matched to your selection */}
                         {isLoading
                     ? <Loader size={14} />
                     : `${total} item${total !== 1 ? "s" : ""} matched`}
                 </p>
-              </div>
-
-            
+              </div>           
             </div>
 
+                              <KitchenStatusBanner
+        status={status}
+        message={message}
+      />
+
+        
                        {/* Initial skeleton */}
             {isLoading && products.length === 0 ? (
               <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -624,30 +620,19 @@ const items          = useCartStore((state) => state.items)       // ← reactiv
               </div>
             ) : (
               <>
-                {/* <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                  {products.map((product) => (
-                    <ProductCard
-                      key={product.id}
-                      product={mapProduct(product)}
-                      qty={cart[product.id] || 0}         // wire to cartStore later
-                      onAdd={() => updateQty(product.id, 1)}
-                      onMinus={() => updateQty(product.id, -1)}
-                      onPlus={() => updateQty(product.id, 1)}
-                    />
-                  ))}
-                </div> */}
 <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
   {products.map((product) => {
     // Find this product in cart using subscribed items array
     const cartItem = items.find((i) => i.product?.id === product.id) || null
     const qty      = cartItem?.quantity || 0
-  
-
-    return (
+      return (
       <ProductCard
         key={product.id}
         product={mapProduct(product)}
         qty={qty}
+        canOrder={canOrder}
+        status={status}  
+        message={message}
         onAdd={() => addItem(product.id, 1)}
         onPlus={() => {
           if (cartItem) updateQuantity(cartItem.id, qty + 1)
@@ -664,13 +649,7 @@ const items          = useCartStore((state) => state.items)       // ← reactiv
     )
   })}
 </div>
-
-            
-
             <div ref={sentinelRef} className="h-14" />
-
-           
-
                 {/* End of list */}
                 {!hasNext && products.length > 0 && !isLoading && (
                   <p className="text-center text-sm text-gray-400">
@@ -679,7 +658,9 @@ const items          = useCartStore((state) => state.items)       // ← reactiv
                 )}
 
                 {/* Empty state */}
-                {!isLoading && products.length === 0 && (
+                {!isLoading && products.length === 0 && (   
+                  
+                    hasActiveFilters ? (      
                   <div className="rounded-[28px] mb-14 bg-white p-10 text-center shadow-sm ring-1 ring-black/5">
                     <h3 className="text-xl font-semibold text-[#111827]">
                       No meals found
@@ -693,7 +674,17 @@ const items          = useCartStore((state) => state.items)       // ← reactiv
                     >
                       Reset Filters
                     </button>
+                    <div>
+         
+                    </div>
                   </div>
+                    ):(
+
+                       null
+        
+
+                     
+                    )
                 )}
             </>
               )}
@@ -718,6 +709,7 @@ const items          = useCartStore((state) => state.items)       // ← reactiv
                 <X size={18} />
               </button>
             </div>
+
 
             <div className="space-y-5">
               <div>

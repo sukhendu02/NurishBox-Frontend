@@ -12,6 +12,8 @@ import {
 } from '../api/user.api'
 import toast from 'react-hot-toast'
 
+import useAddressStore from './addressStrore'
+
 const useUserStore = create((set, get) => ({
   profile: null,
   addresses: [],
@@ -110,7 +112,7 @@ const useUserStore = create((set, get) => ({
         toast.success('Address added', {
           style: { background: 'white', color: 'gray', fontSize:'13px'  },
         })
-        
+        await useAddressStore.getState().initAddress()
         return { ok: true } 
       } else {
         
@@ -171,7 +173,8 @@ const useUserStore = create((set, get) => ({
         toast.success('Address updated', {
           style: { background: 'white', color: 'gray', fontSize:"13px" },
         })
-     
+     await useAddressStore.getState().initAddress()
+
         return { ok: true } 
       } else {
         toast.error(response.error?.message || 'Failed to update address', {
@@ -203,6 +206,8 @@ const useUserStore = create((set, get) => ({
         toast.success('Default address updated', {
           style: { background: 'white', color: 'black',fontSize:"12px" },
         })
+        await useAddressStore.getState().initAddress()
+
         return true
       } else {
         toast.error(response.error?.message || 'Failed to set default', {
@@ -240,6 +245,7 @@ const useUserStore = create((set, get) => ({
         toast.success('Address deleted', {
           style: { background: 'white', color: 'black',fontSize:'12px' },
         })
+        await useAddressStore.getState().initAddress()
         return true
       } else {
         toast.error(response.error?.message || 'Failed to delete address', {

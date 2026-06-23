@@ -2,7 +2,7 @@
 import { create }        from "zustand";
 import { getallItems } from "../api/menu.api";
 import toast             from "react-hot-toast";
-
+import useAddressStore from "../store/addressStrore.js"
 const initialFilters = {
   category: "All Items",
   type:     "",           // "" | "VEG" | "NON-VEG"
@@ -18,7 +18,12 @@ const initialState = {
   isLoading:      false,
   isFetchingMore: false,
   filters:        initialFilters,
-};
+  // ← add these
+  status:         null,
+  canOrder:       false,
+  message:        null,
+  kitchen:        null,
+}
 
 export const useProductStore = create((set, get) => ({
   ...initialState,
@@ -48,13 +53,25 @@ export const useProductStore = create((set, get) => ({
     await get()._fetch(initialFilters, 1, false);
   },
 
+  
+
   // ── Internal fetch ────────────────────────────────────────────
   _fetch: async (filters, page, append) => {
+
     set(append ? { isFetchingMore: true } : { isLoading: true });
 
     try {
+const { selectedAddress } = useAddressStore.getState()
+
+  
+      
       // Build params — only send non-empty values
       const params = { page, limit: 12 };
+
+          if (selectedAddress?.type === 'current_location' && selectedAddress?.coords) {
+  params.lat = selectedAddress.coords.lat
+  params.lng = selectedAddress.coords.lng
+}
 
       if (filters.category && filters.category !== "All Items") {
         params.category = filters.category.toUpperCase().replace(" ", " ");
@@ -65,17 +82,23 @@ export const useProductStore = create((set, get) => ({
       if (filters.discounted) params.discounted = filters.discounted;
       
       const res        = await getallItems(params);
-      const { items }  = res.data; // ← your response: res.data.items
-      const { data, pagination } = items;
+      // const { items }  = res.data; // ← your response: res.data.items
+      // const { data, pagination } = items;
+      const { data, pagination, status, canOrder, message, kitchen } = res.data
+
 
       set((state) => ({
-        products:       append ? [...state.products, ...data] : data,
-        total:          pagination.total,
-        page:           pagination.page,
-        hasNext:        pagination.hasNextPage,
-        isLoading:      false,
-        isFetchingMore: false,
-      }));
+  products:       append ? [...state.products, ...data] : data,
+  total:          pagination.total,
+  page:           pagination.page,
+  hasNext:        pagination.hasNextPage,
+  isLoading:      false,
+  isFetchingMore: false,
+  status,
+  canOrder,
+  message,
+  kitchen,
+}))
 
     } catch (err) {
       set({ isLoading: false, isFetchingMore: false });

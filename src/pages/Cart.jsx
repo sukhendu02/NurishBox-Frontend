@@ -934,6 +934,8 @@ const handlePlaceOrder = async () => {
             {/* Vitality */}
             {!isLoading && items.length > 0 && <VitalityImpact items={items} />}
 
+            {/* SELECTED ADDRESS */}
+            <SelectedAddressCard/>
             {/* Order summary */}
             <div className="mt-6  rounded-2xl border  border-[#eef2ee] px-5 py-5">
               <p className="text-[16px] font-extrabold text-[#1a2e1a] mb-4">Order Summary</p>

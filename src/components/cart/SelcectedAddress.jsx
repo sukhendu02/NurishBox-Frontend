@@ -1,4 +1,4 @@
-import { MapPin, Phone, User, Plus, ChevronRight } from 'lucide-react'
+import { MapPin, Phone, User, Plus, ChevronRight, Zap } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import useAddressStore from '../../store/addressStrore'
 
@@ -37,11 +37,13 @@ export default function SelectedAddressCard() {
   const { label, receiversName, receiversPhone, line1, line2, city, state, pincode } = selectedAddress
 
   return (
-    <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+    <>
+   
+    <div className="rounded-2xl border my-3 ring-1 ring-black/5 border-gray-100 bg-white p-4 shadow-sm">
       {/* Label */}
       <div className="flex items-center justify-between mb-3">
-        <span className="text-[10px] font-bold tracking-widest text-[#0A7560] bg-[#E8F8F3] px-2 py-0.5 rounded-full uppercase">
-          {label}
+        <span className="text-[10px] font-bold text-gray-600 tracking-widest text- px-2 py-0.5 rounded-full uppercase">
+          <Zap className='text-brand-dark inline' size={16}/>  Delivery in <span className='text-brand-primary font-bold' >20-30</span> minutes.
         </span>
         <button
           onClick={() => navigate('/account/manage-address')}
@@ -52,23 +54,30 @@ export default function SelectedAddressCard() {
       </div>
 
       {/* Receiver info */}
+      <div className="flex gap-6 items-baseline">
+
+      
       <div className="flex items-center gap-2 mb-1">
-        <User size={13} className="text-gray-400 flex-shrink-0" strokeWidth={2} />
+        <User size={13} className="text-brand-dark shrink-0" strokeWidth={2} />
         <span className="text-sm font-semibold text-gray-800">{receiversName}</span>
       </div>
       <div className="flex items-center gap-2 mb-3">
-        <Phone size={13} className="text-gray-400 flex-shrink-0" strokeWidth={2} />
-        <span className="text-sm text-gray-500">{receiversPhone}</span>
+        <Phone size={13} className="text-brand-dark shrink-0" strokeWidth={2} />
+        <span className="text-xs text-gray-500">{receiversPhone}</span>
       </div>
-
+</div>
       {/* Address */}
       <div className="flex items-start gap-2">
-        <MapPin size={13} className="text-gray-400 flex-shrink-0 mt-0.5" strokeWidth={2} />
-        <p className="text-sm text-gray-600 leading-relaxed">
+        <MapPin size={13} className="text-brand-dark flex-shrink-0 mt-0.5" strokeWidth={2} />
+          <span className="text-[10px] font-bold tracking-widest text-[#0A7560] bg-[#E8F8F3] px-2 py-0.5 rounded-full uppercase">
+          {label}
+        </span>
+        <p className="text-xs text-gray-600 leading-relaxed">
           {line1}{line2 ? `, ${line2}` : ''}, {city}, {state} – {pincode}
         </p>
       </div>
     </div>
+     </>
   )
 }
 

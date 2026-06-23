@@ -8,7 +8,7 @@ import { completeProfile } from '../../api/auth.api'
 import { saveTokens, clearTempToken } from '../../utils/token'
 import useAuthStore from '../../store/authStore'
 import useCartStore from '../../store/cartStore'
-
+import useAddressStore from '../../store/addressStrore'
 
 export default function Onboarding() {
   const navigate = useNavigate()
@@ -37,6 +37,7 @@ export default function Onboarding() {
       clearTempToken()
       if (data.data.user) setUser(data.data.user)
         await fetchCart()
+      await useAddressStore.getState().initAddress()
         navigate('/')
     } catch (err) {
       // console.log(err);
