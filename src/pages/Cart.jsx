@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import useCartStore from "../store/cartStore";
 import { Link } from "react-router-dom";
-import {ShoppingCart, Tag,Star, Flame, CreditCard, Banknote, BanknoteArrowDownIcon, ArrowBigDownDash, ChevronUp,CheckCircle, AlertCircle} from "lucide-react";
+import {ShoppingCart, Tag,Star, Flame, CreditCard, Banknote, BanknoteArrowDownIcon, ArrowBigDownDash, ChevronUp,CheckCircle, AlertCircle, icons} from "lucide-react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { getAccessToken } from "../utils/token";
@@ -10,7 +10,9 @@ import useUserStore from "../store/userStore";
 import useOrderStore from "../store/orderStore";
 import SelectedAddressCard from "../components/cart/SelcectedAddress";
 import useAddressStore from "../store/addressStrore.js";
-
+import { useProductStore } from "../store/productStore.js";
+import {CartStatusBanner} from "../components/cart/CartStatusBanner.jsx"
+import MobileFixedCTA from "../components/cart/MobileFixedCTA.jsx";
 // ─── SUGGESTIONS (static catalogue – swap with API if needed) ─────────────────
 const SUGGESTIONS = [
   { id: "s1", name: "Avocado Side",    price: 3.5,  img: "https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?w=300" },
@@ -116,7 +118,7 @@ function FreeDeliveryBar({ freeDeliveryIn, subtotal, threshold = 399 }) {
 }
 
 // ─── CART ITEM CARD ───────────────────────────────────────────────────────────
-function CartItemCard({ item, updateQuantity, removeItem }) {
+function CartItemCard({ item, updateQuantity, removeItem,isUnavailable}) {
   const img = item.product?.photoUrl || item.product?.imageUrl;
   const name = item.product?.name ?? "Item";
   const desc = item.product?.description ?? "";
@@ -126,8 +128,10 @@ function CartItemCard({ item, updateQuantity, removeItem }) {
     else updateQuantity(item.id, item.quantity - 1);
   };
 
-  return (
-    <div className="flex gap-4  md:gap-5 py-5 border-b border-[#eef2ee] last:border-0 items-start group">
+  return (<>
+  
+ 
+    <div className={`flex gap-4  md:gap-5 py-5 border-b border-[#eef2ee] last:border-0 items-start group ${isUnavailable? "grayscale opacity-85":""}`}>
       {/* Image */}
       <div className="w-[76px] h-[76px] md:w-24 md:h-24 rounded-xl overflow-hidden flex-shrink-0 bg-[#E8F8F3]">
         {img && <img src={img} alt={name} className="w-full h-full object-cover" />}
@@ -152,6 +156,16 @@ function CartItemCard({ item, updateQuantity, removeItem }) {
         )}
 
         <div className="flex items-center justify-between mt-3">
+
+ {isUnavailable ? (
+            <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-gray-500 bg-gray-100 px-3 py-1.5 rounded-lg">
+              Not available currently
+            </span>
+          ) :(<>
+         
+
+         
+         
           {/* Qty control */}
           <div className="inline-flex items-center border-[1.5px] border-[#dde8dd] rounded-lg bg-[#f8faf8]">
             <button
@@ -170,16 +184,19 @@ function CartItemCard({ item, updateQuantity, removeItem }) {
             </button>
           </div>
 
+           </>)}
+
           {/* Remove */}
           <button
             onClick={() => removeItem(item.id)}
-            className="flex items-center cursor-pointer gap-1.5 text-[13px] text-[#ccc] hover:text-red-400 transition-colors"
+            className={`flex items-center cursor-pointer gap-1.5 text-[13px] text-[#ccc] hover:text-red-400 transition-colors ${isUnavailable?"text-brand-dark! font-bold rounded-3xl ":""}`}
           >
-            {I.trash} <span>Remove</span>
+            {I.trash} <span >Remove</span>
           </button>
         </div>
       </div>
     </div>
+     </>
   );
 }
 
@@ -336,8 +353,8 @@ function OffersSection({ promoCode, setPromoCode, applyPromo, promoApplied, prom
 }
 
 // ─── BILL DETAILS ─────────────────────────────────────────────────────────────
-function BillDetails({ subtotal, deliveryFee, discount, finalTotal, promoApplied, desktop,paymentMethod,paymentmSelect,paymentOptions,setpaymentmSelect,setPaymentMethod,selected,handlePlaceOrder
-
+function BillDetails({ subtotal, deliveryFee, discount, finalTotal, promoApplied, desktop,paymentMethod,paymentmSelect,paymentOptions,setpaymentmSelect,setPaymentMethod,selected,handlePlaceOrder,
+  unavailableIds,items,canOrder,status,selectedAddress
  }) {
   const rows = [
     {
@@ -362,6 +379,29 @@ function BillDetails({ subtotal, deliveryFee, discount, finalTotal, promoApplied
         }]
       : []),
   ];
+
+
+    const noSavedAddress = !selectedAddress || selectedAddress.type === 'current_location'
+  const hasUnavailable = unavailableIds?.length > 0
+  const canPlaceOrder =
+    canOrder &&
+    items.length > 0 &&
+    !noSavedAddress &&
+    !hasUnavailable
+
+   
+    
+     const disabledReason = !items.length
+    ? null // empty cart — no reason needed, button just hidden
+    : noSavedAddress
+    ? 'Add a delivery address to place your order'
+    : !canOrder
+    ? status === 'not_accepting'
+      ? 'Kitchen is not accepting orders right now'
+      : "We don't deliver to your area yet"
+    : hasUnavailable
+    ? 'Remove unavailable items to place your order'
+    : null
 
   return (
     <div className="border border-[#eef2ee] rounded-2xl p-4 bg-white">
@@ -449,8 +489,15 @@ function BillDetails({ subtotal, deliveryFee, discount, finalTotal, promoApplied
        </button>
           
            </div>
+
+             {disabledReason && (
+        <p className=" text-xs my-2 text-red-400 font-medium">{disabledReason}</p>
+      )}
        
-          <button onClick={handlePlaceOrder}  className="w-full py-4  rounded-2xl bg-gradient-to-br from-brand-primary to-brand-dark cursor-pointer text-white font-extrabold text-[16px] flex items-center justify-center gap-2.5 shadow-[0_6px_20px_rgba(13,158,126,.3)] hover:scale-[1.01] active:scale-[.98] transition-transform">
+          <button onClick={canPlaceOrder ? handlePlaceOrder:undefined}
+          disabled={!canPlaceOrder} 
+          className={`w-full py-4  rounded-2xl  cursor-pointer text-white font-extrabold text-[16px] flex items-center justify-center gap-2.5 shadow-[0_6px_20px_rgba(13,158,126,.3)] hover:scale-[1.01] active:scale-[.98] transition-transform 
+          ${!canPlaceOrder? "bg-gray-400":"bg-linear-to-br from-brand-primary to-brand-dark"}`}>
           Place Order
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
@@ -503,6 +550,7 @@ function InfoTip({ text }) {
  function OrderSummary({
   subtotal, deliveryFee, discount, finalTotal,
   promoApplied, promoCode, setPromoCode, applyPromo, promoError, paymentMethod,paymentmSelect,paymentOptions,setpaymentmSelect,setPaymentMethod,selected,handlePlaceOrder,
+  unavailableIds,items,canOrder,status,selectedAddress,
   desktop = false,
 },) {
   return (
@@ -532,7 +580,12 @@ function InfoTip({ text }) {
         selected={selected}
         setpaymentmSelect={setpaymentmSelect}
         handlePlaceOrder={handlePlaceOrder}
-      
+        unavailableIds={unavailableIds}
+        items={items}
+        canOrder={canOrder}
+        status={status}
+        selectedAddress={selectedAddress}
+
       />
     </div>
   );
@@ -595,6 +648,13 @@ export default function Cart() {
   const updateQuantity = useCartStore(s => s.updateQuantity);
   const removeItem     = useCartStore(s => s.removeItem);
   const addItem        = useCartStore(s => s.addItem);
+  const unavailableIds = useCartStore(s=> s.unavailableIds)
+  const eta = useCartStore(s=> s.eta)
+
+
+    const { canOrder, status }      = useProductStore()
+  // const deliveryAddress = addresses.find((addr) => addr.isDefault)
+    const deliveryAddress = useAddressStore((s)=>s.selectedAddress);
 
   const [promoCode, setPromoCode]     = useState("");
   const [promoApplied, setPromoApplied] = useState(false);
@@ -691,9 +751,7 @@ const verifyPaymentAction = useOrderStore(
   }, [])
 
 
-    // const deliveryAddress = addresses.find((addr) => addr.isDefault)
-    const deliveryAddress = useAddressStore((s)=>s.selectedAddress);
-
+  
 const handlePlaceOrder = async () => {
     if (!deliveryAddress) {
       alert('Please set a delivery address')
@@ -768,7 +826,9 @@ const handlePlaceOrder = async () => {
    const summaryProps = {
     subtotal, deliveryFee, discount, finalTotal,
     promoApplied, promoCode, setPromoCode, applyPromo, promoError,paymentMethod,setpaymentmSelect,setPaymentMethod,paymentmSelect,paymentOptions,selected,
-  handlePlaceOrder
+  handlePlaceOrder,
+    // FOR UNAVAILABE OR UNSERVICIPLE PRODUCTS
+  unavailableIds,items,canOrder,status,selectedAddress:deliveryAddress
   
   };
  
@@ -820,7 +880,8 @@ const handlePlaceOrder = async () => {
     <EmptyCart />  
   ):(
     <>
-
+    
+      <CartStatusBanner/>
     
         {/* ── DESKTOP GRID ── */}
         <div className="hidden lg:block">
@@ -851,7 +912,9 @@ const handlePlaceOrder = async () => {
                   [1, 2, 3].map(i => <CartItemSkeleton key={i} />)
                 ) :  (
                   items.map(item => (
-                    <CartItemCard key={item.id} item={item} updateQuantity={updateQuantity} removeItem={removeItem} />
+                    <CartItemCard key={item.id} item={item} updateQuantity={updateQuantity} removeItem={removeItem}  
+                    isUnavailable={unavailableIds?.includes(item.product?.id)}
+                     />
                   ))
                 )}
               </div>
@@ -871,7 +934,7 @@ const handlePlaceOrder = async () => {
               )}
 
               {/* selected addresses */}
-              <SelectedAddressCard/>
+              <SelectedAddressCard eta={eta}/>
             </div>
 
             {/* RIGHT sticky col */}
@@ -895,7 +958,7 @@ const handlePlaceOrder = async () => {
 
         {/* ── MOBILE ── */}
         <div className="lg:hidden pb-32">
-          <div className="px-4 pt-5">
+          <div className="px-2 pt-5">
 
             {/* Header */}
           {/* Header row */}
@@ -914,7 +977,9 @@ const handlePlaceOrder = async () => {
                 <EmptyCart />
               ) : (
                 items.map(item => (
-                  <CartItemCard key={item.id} item={item} updateQuantity={updateQuantity} removeItem={removeItem} />
+                  <CartItemCard key={item.id} item={item} updateQuantity={updateQuantity} removeItem={removeItem} 
+                    isUnavailable={unavailableIds?.includes(item.product?.id)}
+                    />
                 ))
               )}
             </div>
@@ -923,7 +988,7 @@ const handlePlaceOrder = async () => {
             {!isLoading && items.length > 0 && (
               <div className="mb-6">
                 <h2 className="text-[18px] font-extrabold text-gray-700 mb-3 tracking-tight">Complete Your Meal</h2>
-                <div className="flex gap-3 overflow-x-auto snap-x-scroll pb-1 snap-x-scroll mx-4 px-4">
+                <div className="flex gap-3 overflow-x-auto snap-x-scroll pb-1 snap-x-scroll mx-1 px-1">
                   {SUGGESTIONS.map(s => (
                     <SuggestTile key={s.id} item={s} onAdd={handleAddSuggestion} />
                   ))}
@@ -937,7 +1002,7 @@ const handlePlaceOrder = async () => {
             {/* SELECTED ADDRESS */}
             <SelectedAddressCard/>
             {/* Order summary */}
-            <div className="mt-6  rounded-2xl border  border-[#eef2ee] px-5 py-5">
+            <div className="mt-6  rounded-2xl border  border-[#eef2ee]  py-5">
               <p className="text-[16px] font-extrabold text-[#1a2e1a] mb-4">Order Summary</p>
               {isLoading ? <SummarySkeleton /> : <OrderSummary {...summaryProps} />}
             </div>
@@ -948,8 +1013,22 @@ const handlePlaceOrder = async () => {
 
         {/* ── MOBILE FIXED BOTTOM CTA ── */}
        
-        
-        <div className="lg:hidden fixed bottom-0 rounded-2xl p-3 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-[#eef2ee] px-4 py-3 z-50 shadow-[0_-4px_24px_rgba(0,0,0,.08)]">
+        <MobileFixedCTA 
+         paymentmSelect={paymentmSelect}
+  setpaymentmSelect={setpaymentmSelect}
+  paymentOptions={paymentOptions}
+  paymentMethod={paymentMethod}
+  setPaymentMethod={setPaymentMethod}
+  selected={selected}
+  handlePlaceOrder={handlePlaceOrder}
+  I={I}
+   unavailableIds= {unavailableIds}
+   items= {items}
+   canOrder= {canOrder}
+   status= {status}
+  selectedAddress= {deliveryAddress}
+  />
+        {/* <div className="lg:hidden fixed bottom-0 rounded-2xl p-3 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-[#eef2ee] px-4 py-3 z-50 shadow-[0_-4px_24px_rgba(0,0,0,.08)]">
          
                 {paymentmSelect && (
     <div className=" rounded-2xl border border-[#eef2ee] ">
@@ -985,7 +1064,7 @@ const handlePlaceOrder = async () => {
         }`}/>
       </span>
        </button>
-          <button  onClick={handlePlaceOrder} className=" py-4 col-span-2 rounded-2xl bg-gradient-to-br from-brand-primary to-brand-dark text-white font-extrabold text-[16px] flex items-center justify-center gap-2.5 shadow-[0_6px_20px_rgba(13,158,126,.3)] active:scale-[.98] transition-transform">
+          <button  onClick={ handlePlaceOrder} className=" py-4 col-span-2 rounded-2xl bg-gradient-to-br from-brand-primary to-brand-dark text-white font-extrabold text-[16px] flex items-center justify-center gap-2.5 shadow-[0_6px_20px_rgba(13,158,126,.3)] active:scale-[.98] transition-transform">
             Place Order  {I.arrow}
           </button>
           
@@ -993,7 +1072,7 @@ const handlePlaceOrder = async () => {
           <div className="flex justify-center gap-3 mt-2.5 text-[#ccc]">
             {[I.shield, I.lock, I.cc].map((ic, i) => <span key={i}>{ic}</span>)}
           </div>
-        </div>
+        </div> */}
        
    </>
    )}

@@ -24,3 +24,8 @@ export const clearCart = async () => {
   const response = await api.delete('/cart')
   return response.data
 }
+
+export const checkAvailability = async (kitchenId, items,selectedAddress) => {
+  const response = await api.post('/cart/check-availability', { kitchenId, items,selectedAddress })
+  return response.data
+}

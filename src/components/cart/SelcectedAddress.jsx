@@ -2,10 +2,10 @@ import { MapPin, Phone, User, Plus, ChevronRight, Zap } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import useAddressStore from '../../store/addressStrore'
 
-export default function SelectedAddressCard() {
+export default function SelectedAddressCard({eta}) {
   const navigate = useNavigate()
   const selectedAddress = useAddressStore((s) => s.selectedAddress)
-
+  const deliveryTime = eta? eta:"";
   if (!selectedAddress) return <SelectedAddressCardSkeleton />
 
   // ── Current location ───────────────────────────────────────────────────────
@@ -42,8 +42,12 @@ export default function SelectedAddressCard() {
     <div className="rounded-2xl border my-3 ring-1 ring-black/5 border-gray-100 bg-white p-4 shadow-sm">
       {/* Label */}
       <div className="flex items-center justify-between mb-3">
+        
         <span className="text-[10px] font-bold text-gray-600 tracking-widest text- px-2 py-0.5 rounded-full uppercase">
-          <Zap className='text-brand-dark inline' size={16}/>  Delivery in <span className='text-brand-primary font-bold' >20-30</span> minutes.
+          {deliveryTime?(<>
+           <Zap className='text-brand-dark inline' size={16}/>  Delivery in <span className='text-brand-primary font-bold' >{deliveryTime}</span> minutes.
+           </>):<></>}
+         
         </span>
         <button
           onClick={() => navigate('/account/manage-address')}

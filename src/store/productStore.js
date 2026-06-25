@@ -18,7 +18,6 @@ const initialState = {
   isLoading:      false,
   isFetchingMore: false,
   filters:        initialFilters,
-  // ← add these
   status:         null,
   canOrder:       false,
   message:        null,
@@ -81,11 +80,12 @@ const { selectedAddress } = useAddressStore.getState()
 
       if (filters.discounted) params.discounted = filters.discounted;
       
-      const res        = await getallItems(params);
+      const res  = await getallItems(params);
       // const { items }  = res.data; // ← your response: res.data.items
       // const { data, pagination } = items;
-      const { data, pagination, status, canOrder, message, kitchen } = res.data
 
+      const { data, pagination, status, canOrder, message, kitchen } = res.data
+      
 
       set((state) => ({
   products:       append ? [...state.products, ...data] : data,

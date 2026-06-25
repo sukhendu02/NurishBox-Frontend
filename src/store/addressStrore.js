@@ -3,6 +3,7 @@ import { getAddresses } from '../api/user.api.js' // ← adjust path if needed
 import useAuthStore from './authStore'
 import { getAccessToken } from '../utils/token.js'
 import {useProductStore} from "./productStore.js"
+import useCartStore from "./cartStore.js"
 import api from '../api/axios.js'
 // ─── Shape reference ──────────────────────────────────────────────────────────
 //
@@ -56,6 +57,7 @@ function getCurrentLocation() {
     }
     set({ selectedAddress: address })
     useProductStore.getState().fetchProducts()
+     useCartStore.getState().checkCartAvailability()
   },
 
   // ── Main init — reads isAuthenticated directly from authStore ─────────────
