@@ -259,32 +259,32 @@ function SuggestTile({ item, onAdd }) {
 }
 
 // ─── VITALITY IMPACT ──────────────────────────────────────────────────────────
-function VitalityImpact({ items }) {
-  const protein = items.reduce((s, i) => s + 14 * i.quantity, 0);
-  const pct = Math.min(100, (protein / 60) * 100);
-  return (
-    <div className="border border-[#eef2ee] rounded-2xl p-5 bg-white mt-1">
-      <div className="flex items-start gap-3">
-        <div className="w-9 h-9 rounded-full bg-[#f0f7f0] flex items-center justify-center text-[#0D9E7E] flex-shrink-0">
-          {I.leaf}
-        </div>
-        <div className="flex-1">
-          <p className="font-bold text-[15px] text-[#1a2e1a] mb-1">Your Vitality Impact</p>
-          <p className="text-[13px] text-[#666] leading-relaxed">
-            This meal provides {protein}g of plant-based protein and 100% of your daily Vitamin K.
-            You're supporting 2 local regenerative farms with this order.
-          </p>
-          <div className="mt-3 h-1.5 bg-[#eef2ee] rounded-full overflow-hidden">
-            <div
-              className="h-full rounded-full transition-all duration-700"
-              style={{ width: `${pct}%`, background: "linear-gradient(90deg,#0D9E7E,#5ecba8)" }}
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+// function VitalityImpact({ items }) {
+//   const protein = items.reduce((s, i) => s + 14 * i.quantity, 0);
+//   const pct = Math.min(100, (protein / 60) * 100);
+//   return (
+//     <div className="border border-[#eef2ee] rounded-2xl p-5 bg-white mt-1">
+//       <div className="flex items-start gap-3">
+//         <div className="w-9 h-9 rounded-full bg-[#f0f7f0] flex items-center justify-center text-[#0D9E7E] flex-shrink-0">
+//           {I.leaf}
+//         </div>
+//         <div className="flex-1">
+//           <p className="font-bold text-[15px] text-[#1a2e1a] mb-1">Your Vitality Impact</p>
+//           <p className="text-[13px] text-[#666] leading-relaxed">
+//             This meal provides {protein}g of plant-based protein and 100% of your daily Vitamin K.
+//             You're supporting 2 local regenerative farms with this order.
+//           </p>
+//           <div className="mt-3 h-1.5 bg-[#eef2ee] rounded-full overflow-hidden">
+//             <div
+//               className="h-full rounded-full transition-all duration-700"
+//               style={{ width: `${pct}%`, background: "linear-gradient(90deg,#0D9E7E,#5ecba8)" }}
+//             />
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
 
 
 // ─── OFFERS SECTION ───────────────────────────────────────────────────────────
@@ -592,18 +592,18 @@ function InfoTip({ text }) {
 }
 
 // ─── HELP CARD ────────────────────────────────────────────────────────────────
-function HelpCard() {
-  return (
-    <div className="border border-[#eef2ee] rounded-2xl p-4 bg-white flex items-center gap-3 cursor-pointer mt-4 hover:shadow-md transition-shadow">
-      <span className="text-[#999]">{I.question}</span>
-      <div className="flex-1">
-        <p className="font-bold text-[14px] text-gray-700">Need help with your order?</p>
-        <p className="text-[13px] text-brand-primary font-semibold">Chat with a wellness specialist</p>
-      </div>
-      <span className="text-[#ccc]">{I.chevR}</span>
-    </div>
-  );
-}
+// function HelpCard() {
+//   return (
+//     <div className="border border-[#eef2ee] rounded-2xl p-4 bg-white flex items-center gap-3 cursor-pointer mt-4 hover:shadow-md transition-shadow">
+//       <span className="text-[#999]">{I.question}</span>
+//       <div className="flex-1">
+//         <p className="font-bold text-[14px] text-gray-700">Need help with your order?</p>
+//         <p className="text-[13px] text-brand-primary font-semibold">Chat with a wellness specialist</p>
+//       </div>
+//       <span className="text-[#ccc]">{I.chevR}</span>
+//     </div>
+//   );
+// }
 
 // ─── EMPTY STATE ──────────────────────────────────────────────────────────────
 function EmptyCart() {
@@ -686,6 +686,7 @@ const [initialLoad, setInitialLoad] = useState(true);
 
 useEffect(() => {
   if (!isLoading) setInitialLoad(false);
+
 }, [isLoading]);
 
 const showSkeleton = isLoading || initialLoad;
@@ -881,7 +882,10 @@ const handlePlaceOrder = async () => {
   ):(
     <>
     
+    
+
       <CartStatusBanner/>
+  
     
         {/* ── DESKTOP GRID ── */}
         <div className="hidden lg:block">
@@ -929,7 +933,7 @@ const handlePlaceOrder = async () => {
                       <SuggestRow key={s.id} item={s} onAdd={handleAddSuggestion} />
                     ))}
                   </div>
-                  {items.length > 0 && <VitalityImpact items={items} />}
+                  {/* {items.length > 0 && <VitalityImpact items={items} />} */}
                 </>
               )}
 
@@ -949,7 +953,7 @@ const handlePlaceOrder = async () => {
               : (
                 <>
                   <OrderSummary {...summaryProps} desktop />
-                  <HelpCard />
+                  {/* <HelpCard /> */}
                 </>
               )}
             </div>
@@ -997,17 +1001,17 @@ const handlePlaceOrder = async () => {
             )}
 
             {/* Vitality */}
-            {!isLoading && items.length > 0 && <VitalityImpact items={items} />}
+            {/* {!isLoading && items.length > 0 && <VitalityImpact items={items} />} */}
 
             {/* SELECTED ADDRESS */}
-            <SelectedAddressCard/>
+            <SelectedAddressCard eta={eta}/>
             {/* Order summary */}
-            <div className="mt-6  rounded-2xl border  border-[#eef2ee]  py-5">
+            <div className="mt-6  rounded-2xl py-5">
               <p className="text-[16px] font-extrabold text-[#1a2e1a] mb-4">Order Summary</p>
               {isLoading ? <SummarySkeleton /> : <OrderSummary {...summaryProps} />}
             </div>
 
-            <HelpCard />
+            {/* <HelpCard /> */}
           </div>
         </div>
 
@@ -1028,52 +1032,7 @@ const handlePlaceOrder = async () => {
    status= {status}
   selectedAddress= {deliveryAddress}
   />
-        {/* <div className="lg:hidden fixed bottom-0 rounded-2xl p-3 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-[#eef2ee] px-4 py-3 z-50 shadow-[0_-4px_24px_rgba(0,0,0,.08)]">
-         
-                {paymentmSelect && (
-    <div className=" rounded-2xl border border-[#eef2ee] ">
-      
-      {paymentOptions.map(({ id, label, icon }) => (
-        <button
-          key={id}
-          onClick={() => { setPaymentMethod(id); setpaymentmSelect(false); }}
-          className={`w-full flex items-center gap-3 px-4 py-3 text-[14px] transition-colors ${
-            paymentMethod === id
-              ? "bg-[#f0faf6] text-brand-primary font-medium"
-              : "bg-white text-gray-700"
-          }`}
-        >
-          <span>{icon}</span>
-          {label}
-          {paymentMethod === id && <span className="ml-auto text-brand-primary">{I.check}</span>}
-        </button>
-      ))}
-    </div>
-  )}
-  
-   <div className="grid grid-cols-3 items-center gap-3">   
-            <button
-      onClick={() => setpaymentmSelect((prev) => !prev)}
-      className="flex items-center gap-2 flex-1 min-w-0 py-1"
-    >
-      <span className="text-brand-primary">{selected.icon}</span>
-      <span className="text-[14px] font-medium text-gray-800">{selected.label}</span>
-      <span className={`ml-1 transition-transform duration-200 text-gray-400 ${setpaymentmSelect ? "rotate-180" : ""}`}>
-        <ChevronUp  className={`transition-transform duration-200 ${
-          paymentmSelect ? "rotate-180" : ""
-        }`}/>
-      </span>
-       </button>
-          <button  onClick={ handlePlaceOrder} className=" py-4 col-span-2 rounded-2xl bg-gradient-to-br from-brand-primary to-brand-dark text-white font-extrabold text-[16px] flex items-center justify-center gap-2.5 shadow-[0_6px_20px_rgba(13,158,126,.3)] active:scale-[.98] transition-transform">
-            Place Order  {I.arrow}
-          </button>
-          
-           </div>
-          <div className="flex justify-center gap-3 mt-2.5 text-[#ccc]">
-            {[I.shield, I.lock, I.cc].map((ic, i) => <span key={i}>{ic}</span>)}
-          </div>
-        </div> */}
-       
+     
    </>
    )}
       </div>

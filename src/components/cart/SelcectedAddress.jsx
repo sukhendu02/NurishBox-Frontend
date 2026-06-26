@@ -13,8 +13,8 @@ export default function SelectedAddressCard({eta}) {
     return (
       <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 p-4 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-[#E8F8F3] flex items-center justify-center flex-shrink-0">
-            <MapPin size={16} className="text-[#0A7560]" strokeWidth={2.5} />
+          <div className="w-9 h-9 rounded-full bg-brand-sur flex items-center justify-center shrink-0">
+            <MapPin size={16} className="text-brand-dark" strokeWidth={2.5} />
           </div>
           <div>
             <p className="text-xs text-gray-400 font-medium">Delivering to</p>
@@ -24,7 +24,7 @@ export default function SelectedAddressCard({eta}) {
         </div>
         <button
           onClick={() => navigate('/account/manage-address')}
-          className="flex items-center gap-1 text-xs font-semibold text-[#0A7560] bg-[#E8F8F3] px-3 py-2 rounded-xl whitespace-nowrap hover:bg-[#d4f1e8] transition-colors"
+          className="flex items-center gap-1 text-xs font-semibold text-brand-dark bg-brand-surface px-3 py-2 rounded-xl whitespace-nowrap hover:bg-[#d4f1e8] transition-colors"
         >
           <Plus size={13} strokeWidth={2.5} />
           Add Address
@@ -38,20 +38,25 @@ export default function SelectedAddressCard({eta}) {
 
   return (
     <>
+
+  
    
     <div className="rounded-2xl border my-3 ring-1 ring-black/5 border-gray-100 bg-white p-4 shadow-sm">
       {/* Label */}
       <div className="flex items-center justify-between mb-3">
         
         <span className="text-[10px] font-bold text-gray-600 tracking-widest text- px-2 py-0.5 rounded-full uppercase">
+      
           {deliveryTime?(<>
-           <Zap className='text-brand-dark inline' size={16}/>  Delivery in <span className='text-brand-primary font-bold' >{deliveryTime}</span> minutes.
-           </>):<></>}
+           <Zap className='text-brand-dark inline' size={16}/>  Delivery in <span className='text-brand-primary font-bold' > {deliveryTime}</span> minutes.
+           </>):<>
+           
+          </>}
          
         </span>
         <button
           onClick={() => navigate('/account/manage-address')}
-          className="flex items-center gap-1 text-xs text-gray-400 hover:text-[#0A7560] transition-colors"
+          className="flex items-center gap-1 text-xs text-gray-400 hover:text-brand-dark transition-colors"
         >
           Change <ChevronRight size={13} />
         </button>
@@ -72,8 +77,8 @@ export default function SelectedAddressCard({eta}) {
 </div>
       {/* Address */}
       <div className="flex items-start gap-2">
-        <MapPin size={13} className="text-brand-dark flex-shrink-0 mt-0.5" strokeWidth={2} />
-          <span className="text-[10px] font-bold tracking-widest text-[#0A7560] bg-[#E8F8F3] px-2 py-0.5 rounded-full uppercase">
+        <MapPin size={13} className="text-brand-dark shrink-0 mt-0.5" strokeWidth={2} />
+          <span className="text-[10px] font-bold tracking-widest text-brand-dark bg-brand-surface px-2 py-0.5 rounded-full uppercase">
           {label}
         </span>
         <p className="text-xs text-gray-600 leading-relaxed">

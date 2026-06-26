@@ -34,7 +34,13 @@ export function CartStatusBanner() {
   // Not serviceable
   if (status === 'not_serviceable') {
     return (
-      <Banner icon={MapPin} bg="bg-orange-50 border-orange-100" iconBg="bg-orange-100" iconCol="text-orange-500" textCol="text-orange-800" subCol="text-orange-500"
+      <Banner icon={MapPin} 
+  
+      bg="bg-orange-50 border-orange-100" 
+      iconBg="bg-orange-100" 
+      iconCol="text-orange-500"
+       textCol="text-orange-800" 
+       subCol="text-orange-500"
         title="Not serviceable at this location"
         message="We don't deliver to your area yet. Try a different address."
       />
@@ -67,8 +73,8 @@ export function CartStatusBanner() {
 // ─── Reusable banner UI ───────────────────────────────────────────────────────
 function Banner({ icon: Icon, bg, iconBg, iconCol, textCol, subCol, title, message, action }) {
   return (
-    <div className={`flex items-start gap-3 rounded-2xl border p-4 mb-4 ${bg}`}>
-      <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${iconBg}`}>
+    <div className={`flex items-start gap-3 rounded-2xl border p-4 ${bg}`}>
+      <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${iconBg}`}>
         <Icon size={17} className={iconCol} strokeWidth={2.2} />
       </div>
       <div className="flex-1 min-w-0">
