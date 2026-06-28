@@ -39,7 +39,7 @@ export default function MobileFixedCTA({
     : null
 
   return (
-    <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 rounded-2xl bg-white/95 backdrop-blur-md border-t border-[#eef2ee] px-4 py-3 shadow-[0_-4px_24px_rgba(0,0,0,.08)]">
+    <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 rounded-2xl bg-white/95 backdrop-blur-md border-t border-[#eef2ee] px-4 py-1 shadow-[0_-4px_24px_rgba(0,0,0,.08)]">
       
       {paymentmSelect && (
         <div className="rounded-2xl border border-[#eef2ee] mb-3 overflow-hidden">
@@ -91,7 +91,7 @@ export default function MobileFixedCTA({
         <button
           onClick={canPlaceOrder?handlePlaceOrder:undefined}
           disabled={!canPlaceOrder}
-          className={`py-4 col-span-2 rounded-2xl  text-white font-extrabold text-[16px] flex items-center justify-center gap-2.5 shadow-[0_6px_20px_rgba(13,158,126,.3)] active:scale-[.98] transition-transform 
+          className={`py-3 col-span-2 rounded-2xl  text-white font-extrabold text-[14px] flex items-center justify-center gap-2.5 shadow-[0_6px_20px_rgba(13,158,126,.3)] active:scale-[.98] transition-transform 
             ${!canPlaceOrder ? "bg-gray-400":"bg-linear-to-br from-brand-primary to-brand-dark"} `}
         >
           Place Order {I.arrow}
@@ -105,9 +105,9 @@ export default function MobileFixedCTA({
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>,
             ].map((ic, i) => <span key={i}>{ic}</span>)}
       </div>
-        <p className="text-center text-[8px] text-[#bbb] uppercase tracking-widest mt-1.5 font-semibold">
+        {/* <p className="text-center text-[8px] text-[#bbb] uppercase tracking-widest mt-1.5 font-semibold">
             Secure SSL Encrypted Checkout
-          </p>
+          </p> */}
     </div>
   )
 }

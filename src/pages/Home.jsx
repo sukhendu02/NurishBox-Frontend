@@ -612,12 +612,20 @@ const items          = useCartStore((state) => state.items)       // ← reactiv
 
         
                        {/* Initial skeleton */}
-            {isLoading && products.length === 0 ? (
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                       
+            {isLoading? (<>
+             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 {Array.from({ length: 6 }).map((_, i) => (
                   <ProductSkeleton key={i} />
                 ))}
-              </div>
+              </div></>
+            //   )
+            // :isLoading && products.length === 0 ? (
+            //   <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            //     {Array.from({ length: 6 }).map((_, i) => (
+            //       <ProductSkeleton key={i} />
+            //     ))}
+            //   </div>
             ) : (
               <>
 <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -681,6 +689,8 @@ const items          = useCartStore((state) => state.items)       // ← reactiv
                     ):(
 
                        null
+
+                       
         
 
                      
@@ -694,7 +704,7 @@ const items          = useCartStore((state) => state.items)       // ← reactiv
 
       {/* mobile filters sheet */}
       {mobileFiltersOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
+        <div className="fixed inset-0 z-100 lg:hidden">
           <div
             className="absolute inset-0 bg-black/35"
             onClick={() => setMobileFiltersOpen(false)}
