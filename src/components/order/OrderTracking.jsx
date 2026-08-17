@@ -2,14 +2,17 @@ import { useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import useOrderStore from '../../store/orderStore'
 import { useOrderTracking } from '../../store/orderTracking'
+import { formatDateTime } from '../../helpers/formatDateTime'
+import { Bike, Check, CookingPot, Package2, PartyPopper, User  } from 'lucide-react'
+// import {PaperBag} from 'lucide-react'
 // ─── Status config ────────────────────────────────────────────────
 
 const STATUS_SEQUENCE = [
-  { key: 'PLACED',           label: 'Placed',        icon: '🧾' },
-  { key: 'CONFIRMED',        label: 'Confirmed',     icon: '✅' },
-  { key: 'PREPARING',        label: 'Preparing',     icon: '🍱' },
-  { key: 'OUT_FOR_DELIVERY', label: 'On the Way',    icon: '🚴' },
-  { key: 'DELIVERED',        label: 'Delivered',     icon: '🎉' },
+  { key: 'PLACED',           label: 'Placed',        icon: <Package2   /> },
+  { key: 'CONFIRMED',        label: 'Confirmed',     icon: <Check  />  },
+  { key: 'PREPARING',        label: 'Preparing',     icon: <CookingPot  />  },
+  { key: 'OUT_FOR_DELIVERY', label: 'On the Way',    icon: <Bike/> },
+  { key: 'DELIVERED',        label: 'Delivered',     icon: <PartyPopper/> },
 ]
 
 const TERMINAL_STATUSES = new Set(['DELIVERED', 'CANCELLED', 'FAILED', 'REFUNDED'])
@@ -251,16 +254,16 @@ function Timeline({ activeStatus }) {
   if (isCancelled) return null
 
   return (
-    <div className="bg-white rounded-2xl border p-5" style={{ borderColor: '#f3f4f6' }}>
+    <div className="bg-black/3 ring ring-black/5 rounded-2xl border p-5" style={{ borderColor: '#f3f4f6' }}>
       <div className="flex items-center justify-between relative">
         {/* Connecting line */}
         <div
-          className="absolute top-4 left-0 right-0 h-0.5"
+          className="absolute top-4.5 left-0 right-0 h-1"
           style={{ backgroundColor: '#f3f4f6', zIndex: 0 }}
         />
         {/* Active progress line */}
         <div
-          className="absolute top-4 left-0 h-0.5 transition-all duration-700"
+          className="absolute top-4.5 left-0 h-1 transition-all duration-700"
           style={{
             backgroundColor: '#0D9E7E',
             zIndex: 1,
@@ -279,28 +282,27 @@ function Timeline({ activeStatus }) {
             <div key={step.key} className="flex flex-col items-center gap-2 relative z-10">
               {/* Circle */}
               <div
-                className="w-8 h-8 rounded-full flex items-center justify-center text-sm transition-all duration-500"
+                className="w-10 h-10 rounded-full flex items-center justify-center text-sm transition-all duration-500"
                 style={{
                   backgroundColor: isActive
-                    ? '#0D9E7E'
+                    ? '#0A7560'
                     : isCompleted
-                    ? '#E8F8F3'
+                    ? '#0A7560'
                     : '#f9fafb',
                   border: isActive
                     ? '3px solid #B2E8D6'
                     : isCompleted
-                    ? '2px solid #0D9E7E'
+                    ? '2px solid #0A7560'
                     : '2px solid #e5e7eb',
-                  boxShadow: isActive ? '0 0 0 4px #B2E8D6' : 'none',
+                  boxShadow: isActive ? '0 0 0 4px #5ECBA8' : 'none',
                 }}
               >
                 {isCompleted ? (
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0D9E7E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
+               
+                  <Check className='text-white' size={16}/>
                 ) : (
-                  <span style={{ fontSize: 14, opacity: isUpcoming ? 0.3 : 1 }}>
-                    {step.icon}
+                  <span className={`${isActive?" text-white ": ""}`} size={13}  style={{  opacity: isUpcoming ? 0.3 : 1 }}>
+                    {step.icon } 
                   </span>
                 )}
               </div>
@@ -316,7 +318,7 @@ function Timeline({ activeStatus }) {
                     : isCompleted
                     ? '#033428'
                     : '#d1d5db',
-                  maxWidth: 56,
+                  // maxWidth: 56,
                   lineHeight: 1.3,
                 }}
               >
@@ -330,9 +332,86 @@ function Timeline({ activeStatus }) {
   )
 }
 
-function OrderSummaryCard({ order }) {
+  
+
+ import { MessageSquare, Phone, BadgeCheck } from "lucide-react";
+
+function RiderDetails({
+  name = "Marcus Chen",
+  avatarUrl = "",
+  rating = "Top Rated",
+  deliveries = 542,
+  onMessage = () => {},
+  onCall = () => {},
+}) {
   return (
-    <div className="bg-white rounded-2xl border p-4" style={{ borderColor: '#f3f4f6' }}>
+    <>
+    
+    <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-100 max-w-md">
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="relative shrink-0">
+          <div className="h-12 w-12 overflow-hidden rounded-full bg-slate-200">
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt={name}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center text-slate-500 font-semibold">
+                {name
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")}
+              </div>
+            )}
+          </div>
+          <span className="absolute -bottom-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-600 ring-2 ring-white">
+            <BadgeCheck className="h-3 w-3 text-white" strokeWidth={3} />
+          </span>
+        </div>
+
+        <div className="min-w-0">
+          <p className="truncate text-base font-semibold text-slate-900">
+            {name}
+          </p>
+          <p className="truncate text-xs text-slate-500">
+            <span className="text-emerald-600 font-medium">{rating}</span>
+            <span className="mx-1.5 text-slate-300">•</span>
+            <span>{deliveries} Deliveries</span>
+          </p>
+        </div>
+      </div>
+
+      <div className="flex mt-6 shrink-0 items-center  gap-2">
+        <button
+          type="button"
+          onClick={onMessage}
+          className="flex  items-center gap-1.5 rounded-full bg-slate-100 px-3.5 py-2 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+        >
+          <MessageSquare className="h-4 w-4" />
+          <span className="hidden sm:inline">Message</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={onCall}
+          className="flex items-center gap-1.5 rounded-full bg-brand-dark px-4 py-2 text-xs font-medium text-white transition-colors hover:bg-emerald-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+        >
+          <Phone className="h-4 w-4 fill-white" />
+          <span>Call</span>
+        </button>
+      </div>
+    </div>
+      </>
+  );
+}
+
+
+function OrderSummaryCard({ order }) {
+  console.log(order)
+  return (
+    <div className="bg-white ring-1 ring-black/5 rounded-2xl mb-3 border p-4" style={{ borderColor: '#f3f4f6' }}>
       <p className="font-bold text-sm mb-3" style={{ color: '#033428' }}>Order summary</p>
       <div className="space-y-2">
         {order.items?.map((item) => (
@@ -345,7 +424,7 @@ function OrderSummaryCard({ order }) {
             </div>
             <div className="text-right shrink-0">
               <p className="text-sm font-semibold" style={{ color: '#033428' }}>
-                {formatCurrency(item.totalPrice)}
+                {formatCurrency(item.unitPrice)}
               </p>
               <p className="text-xs mt-0.5" style={{ color: '#9CA3AF' }}>×{item.quantity}</p>
             </div>
@@ -354,9 +433,27 @@ function OrderSummaryCard({ order }) {
       </div>
       <div className="h-px my-3" style={{ backgroundColor: '#f3f4f6' }} />
       <div className="flex justify-between items-center">
-        <p className="text-sm font-bold" style={{ color: '#033428' }}>Total</p>
-        <p className="text-base font-bold" style={{ color: '#0D9E7E' }}>
-          {formatCurrency(order.totalAmount)}
+        <p className="text-xs  text-gray-500">Subtotal</p>
+        <p className="text-xs p-1 text-gray-500">
+          {formatCurrency(order.subtotal)}
+        </p>
+      </div>
+      <div className="flex justify-between items-center">
+        <p className="text-xs  text-gray-500">Delivery Fee</p>
+        <p className="text-xs p-1 text-gray-500">
+          {formatCurrency(order.deliveryFee)}
+        </p>
+      </div>
+      <div className="flex justify-between items-center">
+        <p className="text-xs  text-gray-500">Discount</p>
+        <p className="text-xs p-1 text-gray-500">
+          -{formatCurrency(order.discountAmt)}
+        </p>
+      </div>
+      <div className="flex justify-between items-center">
+        <p className="text-sm font-semibold text-gray-700">Total</p>
+        <p className="text-sm p-1 font-semibold" style={{ color: '#0D9E7E' }}>
+          {formatCurrency(order.totalAmt)}
         </p>
       </div>
     </div>
@@ -370,7 +467,7 @@ function DeliveryAddressCard({ address }) {
     .join(', ')
 
   return (
-    <div className="bg-white rounded-2xl border p-4" style={{ borderColor: '#f3f4f6' }}>
+    <div className="bg-white mt-2 ring-1 ring-black/5 rounded-2xl border p-4" style={{ borderColor: '#f3f4f6' }}>
       <p className="font-bold text-sm mb-2" style={{ color: '#033428' }}>Delivery to</p>
       <div className="flex items-start gap-3">
         <div
@@ -395,7 +492,7 @@ function DeliveryAddressCard({ address }) {
 
 function SkeletonLoader() {
   return (
-    <div className="max-w-xl mx-auto px-4 py-4 space-y-4 animate-pulse">
+    <div className="max-w-xl mx-auto md:px-4 md:py-4 space-y-4 animate-pulse">
       <div className="h-5 w-40 bg-gray-100 rounded" />
       <div className="rounded-2xl bg-gray-100" style={{ height: 160 }} />
       <div className="rounded-2xl bg-gray-100" style={{ height: 80 }} />
@@ -426,7 +523,7 @@ export default function OrderTracking() {
   const displayStatus = trackedStatus ?? currentOrder.status
 
   return (
-    <div className="max-w-xl mx-auto px-4 py-4 space-y-4">
+    <div className="mx-auto md:px-4 md:py-4 md:mb-14 space-y-4">
 
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -436,18 +533,32 @@ export default function OrderTracking() {
             className="flex items-center gap-1 text-sm mb-1"
             style={{ color: '#9CA3AF' }}
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="24" className='border-2 rounded-full' height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="15 18 9 12 15 6" />
             </svg>
             My orders
           </button>
-          <p className="font-bold" style={{ color: '#033428', fontSize: 17 }}>
-            Order #{currentOrder.orderNumber}
+          <div>
+
+              <p className="text-xs font-semibold uppercase tracking-widest text-brand-primary" >
+             
+              Live Tracking
+            
+            </p>
+
+          <p className="text-xs my-3 text-gray-500 "
+          //  style={{ color: '#033428', fontSize: 17 }}
+           >
+            Order #{currentOrder.orderNumber} | Placed on {formatDateTime(currentOrder.createdAt)}
           </p>
+          <p>
+            
+          </p>
+          </div>
         </div>
 
         {/* Live indicator */}
-        {isTracking && (
+        {/* {isTracking && (
           <div className="flex items-center gap-1.5 px-3 py-1 rounded-full" style={{ backgroundColor: '#E8F8F3' }}>
             <span
               className="w-2 h-2 rounded-full"
@@ -455,20 +566,31 @@ export default function OrderTracking() {
             />
             <span className="text-xs font-semibold" style={{ color: '#065443' }}>Live</span>
           </div>
-        )}
+        )} */}
       </div>
 
       {/* Illustration + quote */}
       <StatusIllustration status={displayStatus} />
 
-      {/* Timeline */}
       <Timeline activeStatus={displayStatus} />
-
+      <div className='flex flex-col md:flex-row md:gap-4'>
+        <div className="left w-full">
+      {/* Timeline */}
       {/* Order summary */}
       <OrderSummaryCard order={currentOrder} />
 
+        </div>
+        <div className="right w-full">
+      <RiderDetails />
+
       {/* Delivery address */}
       <DeliveryAddressCard address={currentOrder.address} />
+        </div>
+        
+      </div>
+
+
+
 
     </div>
   )

@@ -14,7 +14,6 @@ import AccountOverview from '../pages/AccountOverview.jsx'
 import ManageAddress from '../pages/account/ManageAddresses.jsx'
 import Orders from '../pages/account/Orders.jsx'
 import Coupons from '../pages/account/Coupons.jsx'
-import CheckoutOverlay from '../components/order/CheckoutOverlay.jsx'
 import OrderTracking from '../components/order/OrderTracking.jsx'
 
 
@@ -22,7 +21,7 @@ export default function AppRoutes() {
   return (
     <>
    
-    <CheckoutOverlay/>
+  
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/explore" element={<Explore />} />

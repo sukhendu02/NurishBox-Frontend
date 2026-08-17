@@ -1,7 +1,37 @@
+import useAddressStore from '../store/addressStrore'
+import { useProductStore } from '../store/productStore'
 import api from './axios'
 
+// export const getCart = async () => {
+//   const response = await api.get('/cart')
+//   return response.data
+// }
 export const getCart = async () => {
-  const response = await api.get('/cart')
+  const selectedAddress = useAddressStore.getState().selectedAddress
+
+  const params = {}
+
+ 
+   if (selectedAddress) {
+    const kitchenId =
+      selectedAddress.type === "current_location"
+        ? useProductStore.getState().kitchen?.id ?? null
+        : selectedAddress.kitchenId ?? null;
+
+    if (kitchenId) {
+      params.kitchenId = kitchenId;
+    }
+
+    if (
+      selectedAddress.type === "current_location" &&
+      selectedAddress.coords
+    ) {
+      params.lat = selectedAddress.coords.lat;
+      params.lng = selectedAddress.coords.lng;
+    }
+  }
+  const response = await api.get('/cart',{params})
+  console.log("cart response",response)
   return response.data
 }
 
@@ -27,5 +57,17 @@ export const clearCart = async () => {
 
 export const checkAvailability = async (kitchenId, items,selectedAddress) => {
   const response = await api.post('/cart/check-availability', { kitchenId, items,selectedAddress })
+  return response.data
+}
+export const applyCoupon = async (code,kitchenId) => {
+  const response = await api.post('/coupon', { code,kitchenId })
+  return response.data
+}
+export const removeCoupon = async () => {
+  const response = await api.post('/coupon/remove')
+  return response.data
+}
+export const getAvailableCoupons = async () => {
+  const response = await api.get('/coupon/available')
   return response.data
 }

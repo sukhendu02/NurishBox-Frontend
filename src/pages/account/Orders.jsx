@@ -6,14 +6,14 @@ import useUserStore from '../../store/userStore'
 // ─── Status config ────────────────────────────────────────────────
 
 const STATUS_CONFIG = {
-  PLACED:            { label: 'Placed',           style: 'bg-[#E8F8F3] text-[#065443]' },
-  CONFIRMED:         { label: 'Confirmed',         style: 'bg-[#E8F8F3] text-[#065443]' },
-  PREPARING:         { label: 'Preparing',         style: 'bg-amber-50 text-amber-800' },
-  OUT_FOR_DELIVERY:  { label: 'Out for Delivery',  style: 'bg-blue-50 text-blue-800' },
-  DELIVERED:         { label: 'Delivered',         style: 'bg-green-50 text-green-800' },
-  CANCELLED:         { label: 'Cancelled',         style: 'bg-red-50 text-red-700' },
-  FAILED:            { label: 'Failed',            style: 'bg-red-50 text-red-700' },
-  REFUNDED:          { label: 'Refunded',          style: 'bg-gray-100 text-gray-600' },
+  PLACED:            { label: 'Placed',           style: 'bg-[#E8F8F3] text-[#065443] font-semibold' },
+  CONFIRMED:         { label: 'Confirmed',         style: 'bg-[#E8F8F3] text-[#065443] font-semibold' },
+  PREPARING:         { label: 'Preparing',         style: 'bg-amber-50 text-amber-800 font-semibold' },
+  OUT_FOR_DELIVERY:  { label: 'Out for Delivery',  style: 'bg-blue-50 text-blue-800 font-semibold' },
+  DELIVERED:         { label: 'Delivered',         style: 'bg-green-50 text-green-800 font-semibold' },
+  CANCELLED:         { label: 'Cancelled',         style: 'bg-red-50 text-red-700 font-semibold' },
+  FAILED:            { label: 'Failed',            style: 'bg-red-50 text-red-700 font-semibold' },
+  REFUNDED:          { label: 'Refunded',          style: 'bg-gray-100 text-gray-600 font-semibold' },
 }
 
 const TERMINAL_STATUSES = new Set(['DELIVERED', 'CANCELLED', 'FAILED', 'REFUNDED'])
@@ -65,7 +65,7 @@ function OrderItemRow({ item }) {
         <p className="text-xs text-gray-400 mt-0.5">Qty {item.quantity}</p>
       </div>
       <div className="text-right shrink-0">
-        <p className="text-sm  text-[#033428]">{formatCurrency(item.totalPrice)}</p>
+        <p className="text-sm  text-text-brand">{formatCurrency(item.totalPrice)}</p>
       </div>
     </div>
   )
@@ -75,21 +75,21 @@ function OrderCard({ order, onTrack, onRate }) {
   const itemCount = order.items?.length ?? 0
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
+    <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm p-4">
 
       {/* Card Header */}
-      <div className="px-4 pt-4 pb-3 flex items-start justify-start gap-3">
+      <div className="px-4 pt-4 pb-3 flex items-start justify-between gap-3">
         <div>
           <p className="font-semibold text-sm tracking-wide">
-            #{order.orderNumber}
+           Order #{order.orderNumber}
           </p>
-          <p className="text-xs  text-gray-400 mt-0.5">{formatDateTime(order.createdAt)}</p>
+          <p className="text-xs  text-gray-400 mt-0.5">Placed on {formatDateTime(order.createdAt)}</p>
         </div>
         <StatusBadge status={order.status} />
       </div>
 
       {/* Divider */}
-      <div className="h-px bg-gray-50 mx-4" />
+      <div className="h-px bg-gray-100 mx-4" />
 
       {/* Items */}
       <div className="px-4 py-1 divide-y  border-b border-gray-100  p-2 divide-gray-50">
@@ -99,7 +99,7 @@ function OrderCard({ order, onTrack, onRate }) {
       </div>
 
       {/* Divider */}
-      <div className="h-px bg-gray-50 mx-4" />
+      <div className="h-px bg-gray-100 mx-4" />
 
       {/* Card Footer */}
       <div className="px-4 py-3 flex items-center justify-between gap-3">
@@ -117,17 +117,26 @@ function OrderCard({ order, onTrack, onRate }) {
 
         <div className="flex gap-2">
           {canRate(order.status) && (
+            <>
+           
             <button
               onClick={() => onRate(order)}
-              className="text-xs  px-3 py-2 rounded-xl font-medium border bg-brand-dark cursor-pointer text-white hover:bg-[#E8F8F3] transition-colors"
+              className="text-xs px-4 py-2.5 rounded-full font-medium bg-gray-400 cursor-pointer text-white hover:bg-gray-500 transition-colors"
+            >
+              View Order
+            </button>
+            <button
+              onClick={() => onRate(order)}
+              className="text-xs  px-4 py-2.5 rounded-full font-medium bg-amber-500  cursor-pointer  shadow-amber-100 text-white hover:shadow-md transition-colors"
             >
               Rate Order
             </button>
+           </>
           )}
           {canTrack(order.status) && (
             <button
               onClick={() => onTrack(order)}
-              className="text-xs  px-3 py-2 rounded-xl font-medium bg-brand-dark cursor-pointer text-white hover:bg-brand-primary transition-colors"
+              className="text-xs  px-4 py-2.5 rounded-full font-medium bg-brand-dark shadow-sm shadow-brand-dark cursor-pointer text-white hover:bg-brand-deeper transition-colors"
             >
               Track Order
             </button>
@@ -169,18 +178,18 @@ function SkeletonCard() {
 function EmptyState({ onShop }) {
   return (
     <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
-      <div className="w-16 h-16 rounded-2xl bg-[#E8F8F3] flex items-center justify-center mb-4">
+      <div className="w-16 h-16 rounded-2xl bg-brand-surface flex items-center justify-center mb-4">
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0D9E7E" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
           <line x1="3" y1="6" x2="21" y2="6" />
           <path d="M16 10a4 4 0 01-8 0" />
         </svg>
       </div>
-      <p className="text-base  text-[#033428]">No orders yet</p>
+      <p className="text-base  text-text-brand">No orders yet</p>
       <p className="text-sm text-gray-400 mt-1">Your placed orders will appear here</p>
       <button
         onClick={onShop}
-        className="mt-6 bg-[#0D9E7E] text-white text-sm  px-6 py-3 rounded-xl hover:bg-[#0A7560] transition-colors"
+        className="mt-6 bg-brand-primary text-white text-sm  px-6 py-3 rounded-xl hover:bg-brand-dark transition-colors"
       >
         Start Shopping
       </button>
@@ -243,7 +252,7 @@ export default function Orders() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-4">
+    <div className="mx-auto p-4">
       <div className="flex flex-col gap-3">
         {orders.map((order) => (
           <OrderCard
@@ -259,7 +268,7 @@ export default function Orders() {
       <div ref={loaderRef} className="flex items-center justify-center h-12 mt-2">
         {isFetchingOrders && (
           <div
-            className="w-6 h-6 rounded-full border-2 border-[#E8F8F3] border-t-[#0D9E7E]"
+            className="w-6 h-6 rounded-full border-2 border-brand-surface border-t-brand-primary"
             style={{ animation: 'spin 1s linear infinite' }}
           />
         )}

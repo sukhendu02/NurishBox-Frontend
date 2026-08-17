@@ -91,8 +91,8 @@ export default function VerifyOTP() {
          await fetchCart()
           console.log("User data after OTP verification:", data.data.user);
         toast.success('Login successful!', { style: { fontSize:'12px' } })
-        await useAddressStore.getState().initAddress()
         navigate('/')
+        await useAddressStore.getState().initAddress()
       }
     } catch (err) {
       const msg = err?.response?.data?.error?.message || 'Invalid or expired OTP.'

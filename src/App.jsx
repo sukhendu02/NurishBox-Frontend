@@ -23,8 +23,8 @@ function App() {
    useEffect(() => {
     const init = async () => {
       await initializeAuth()       // wait for auth to settle first
-       initAddress() // then initialize address with correct auth state
-      fetchCart()
+      await initAddress() // then initialize address with correct auth state
+      await fetchCart()
     }
     init()
   }, [])

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import useCartStore from "../store/cartStore";
 import { Link } from "react-router-dom";
-import {ShoppingCart, Tag,Star, Flame, CreditCard, Banknote, BanknoteArrowDownIcon, ArrowBigDownDash, ChevronUp,CheckCircle, AlertCircle, icons} from "lucide-react";
+import {ShoppingCart, Tag,Star, Flame,ChevronRight, CreditCard,Plus, Banknote,X , BanknoteArrowDownIcon, ArrowBigDownDash, ChevronUp,CheckCircle, AlertCircle, icons, ArrowRightLeft, ArrowBigRight, Cross} from "lucide-react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { getAccessToken } from "../utils/token";
@@ -13,6 +13,8 @@ import useAddressStore from "../store/addressStrore.js";
 import { useProductStore } from "../store/productStore.js";
 import {CartStatusBanner} from "../components/cart/CartStatusBanner.jsx"
 import MobileFixedCTA from "../components/cart/MobileFixedCTA.jsx";
+import { DELIVERY_CONFIG } from "../constant/deliveryConstant.js";
+import OffersSheet from '../components/coupon/OfferSheet.jsx'
 // ─── SUGGESTIONS (static catalogue – swap with API if needed) ─────────────────
 const SUGGESTIONS = [
   { id: "s1", name: "Avocado Side",    price: 3.5,  img: "https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?w=300" },
@@ -80,7 +82,7 @@ function SummarySkeleton() {
 }
 
 // ─── FREE DELIVERY BAR ────────────────────────────────────────────────────────
-function FreeDeliveryBar({ freeDeliveryIn, subtotal, threshold = 399 }) {
+function FreeDeliveryBar({ freeDeliveryIn, subtotal, threshold = 299 }) {
   const pct = Math.min(100, Math.max(4, ((threshold - freeDeliveryIn) / threshold) * 100));
   const unlocked = freeDeliveryIn <= 0;
 
@@ -122,6 +124,7 @@ function CartItemCard({ item, updateQuantity, removeItem,isUnavailable}) {
   const img = item.product?.photoUrl || item.product?.imageUrl;
   const name = item.product?.name ?? "Item";
   const desc = item.product?.description ?? "";
+  // console.log(isUnavailable)
 
   const handleMinus = () => {
     if (item.quantity === 1) removeItem(item.id);
@@ -287,74 +290,107 @@ function SuggestTile({ item, onAdd }) {
 // }
 
 
+
+
 // ─── OFFERS SECTION ───────────────────────────────────────────────────────────
-function OffersSection({ promoCode, setPromoCode, applyPromo, promoApplied, promoError, discount }) {
+function OffersSection({ promoCode, setPromoCode, applyPromo, promoApplied, promoError, discount,   
+  applyCoupon,removeCoupon, handleCouponRemove,appliedCoupon ,couponDiscount,isApplyingCoupon, applyingCouponCode }) {
+ const [openOffer, setOpenOffer]= useState(false);
+ 
   return (
     <div className="border border-[#eef2ee] rounded-2xl p-4 bg-white">
       {/* Header */}
       <div className="flex items-center gap-2 mb-3">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0D9E7E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>
-        </svg>
+       <Tag size={16} className="text-brand-primary"/>
         <span className="text-[13px] font-bold text-[#1a2e1a]">Offers & Coupons</span>
       </div>
 
+
       {/* Input row */}
-      <div className="flex gap-2 mb-2">
+      {!appliedCoupon &&(
+
+      <div className="flex gap-2 mb-2 flex items-center gap-2 rounded-xl border-[1.4px] border-brand-primary bg-gray-50 p-1 focus-within:brand-primary transition-colors">
         <input
-          value={promoCode}
+          value={promoCode.toUpperCase()}
           onChange={e => setPromoCode(e.target.value)}
           placeholder="Enter promo code"
-          className="flex-1 h-10 rounded-xl border-[1.5px] border-[#e0ebe0] px-3 text-[13px] font-semibold text-[#1a2e1a] outline-none bg-[#fafcfa] focus:border-[#0D9E7E] transition-colors placeholder:text-[#ccc] placeholder:font-normal font-[inherit]"
+              className="min-w-0 flex-1 bg-transparent px-2.5 py-1.5 text-[13px] text-gray-900 placeholder:text-gray-400 outline-none"
+          // className="flex-1 h-10 rounded-xl border-[1.5px] border-[#e0ebe0] px-3 text-[13px]  text-gray-700 font-medium outline-none bg-[#fafcfa] focus:border-[#0D9E7E] transition-colors placeholder:text-[#ccc] placeholder:font-normal font-[inherit]"
         />
-        <button
+
+      <button
           onClick={applyPromo}
-          className="h-10 px-4 rounded-xl bg-[#f0f7f0] text-[#0D9E7E] border-[1.5px] border-[#c2ddc2] font-bold text-[13px] hover:bg-[#ddf0e8] active:scale-95 transition-all"
-        >
-          Apply
-        </button>
-      </div>
-
-      {/* Applied coupon banner */}
-      {promoApplied && discount > 0 && (
-        <div className="flex items-start gap-2.5 bg-[#f0faf6] border border-[#b6e8d4] rounded-xl px-3 py-2.5 mb-2">
-          <span className="text-[#0D9E7E] mt-0.5 flex-shrink-0">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
-            </svg>
-          </span>
-          <div className="flex-1 min-w-0">
-            <p className="text-[12px] font-bold text-[#0D9E7E]">{promoCode.toUpperCase()} applied</p>
-            <p className="text-[11px] text-[#0D9E7E] opacity-80 mt-0.5">You save ₹{discount.toFixed(2)} with this code</p>
-          </div>
-          <button
-            onClick={() => { setPromoCode(""); applyPromo.__clear?.(); }}
-            className="text-[11px] font-semibold text-[#0D9E7E] opacity-60 hover:opacity-100 transition-opacity flex-shrink-0 mt-0.5"
+          className="h-10 px-3  cursor-pointer rounded-xl bg-brand-primary text-white uppercase tracking-wide border-[1.5px] font-bold text-[13px] hover:bg-brand-dark active:scale-95 transition-all"
           >
-            Remove
-          </button>
-        </div>
+ {isApplyingCoupon ? <> 
+ <div className="flex items-center gap-1">
+  <span className="h-2 w-2 animate-bounce text-white rounded-full bg-current [animation-delay:-0.2s]" />
+  <span className="h-2 w-2 animate-bounce text-white rounded-full bg-current [animation-delay:-0.1s]" />
+  <span className="h-2 w-2 animate-bounce text-white rounded-full bg-current" />
+</div>
+</> : 'Apply'}
+        </button> 
+        
+      </div>
       )}
+     
 
-      {/* Error */}
-      {promoError && (
-        <p className="text-[12px] text-red-400 font-medium mb-2">{promoError}</p>
-      )}
+
+
+
+      {appliedCoupon && discount > 0 && (
+  <div className="flex items-start gap-2.5  border border-[#b6e8d4] rounded-xl px-3 py-2.5 mb-2">
+    <span className="text-[#0D9E7E] mt-0.5 flex-shrink-0">
+    <Tag/>
+    </span>
+    <div className="flex-1 items-center min-w-0">
+      <p className="text-[12px] font-bold text-brand-primary tracking-wide"> <span className="text-brand-dark">
+         {appliedCoupon.code}
+        </span> applied!</p>
+      <p className="text-[11px] text-gray-600 opacity-80 mt-0.5">You save ₹{discount.toFixed(2)} with this code</p>
+    </div>
+    <button
+      onClick={handleCouponRemove}
+      className="text-[11px] cursor-pointer  font-semibold text-gray-700 underline opacity-60 hover:opacity-100 transition-opacity flex-shrink-0 mt-0.5"
+    >
+      Remove
+    </button>
+  </div>
+)}
+
+{/* Error */}
+{promoError && (
+  <p className="text-[12px] text-red-400 font-medium mb-2">{promoError}</p>
+)}
 
       {/* View all offers */}
-      <button className="flex items-center gap-1 text-[12px] text-[#0D9E7E] font-semibold hover:underline mt-1">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="9 18 15 12 9 6"/>
-        </svg>
-        View all offers
+      <button onClick={() => setOpenOffer(true)} className="flex items-center gap-1 cursor-pointer text-[12px] text-[#0D9E7E] font-semibold hover:underline mt-1">
+        
+        View all offers 
+        <ChevronRight size={14}/>
       </button>
+
+
+       <OffersSheet 
+       openOffer={openOffer} 
+       onClose={() => setOpenOffer(false)}
+       appliedCoupon={appliedCoupon}
+       applyCoupon={applyCoupon}
+       removeCoupon={removeCoupon}
+       isApplyingCoupon={isApplyingCoupon}
+
+     
+         promoError={promoError}
+  onCouponApplied={() => setOpenOffer(false)}
+applyingCouponCode={applyingCouponCode}
+        />
     </div>
   );
 }
 
 // ─── BILL DETAILS ─────────────────────────────────────────────────────────────
 function BillDetails({ subtotal, deliveryFee, discount, finalTotal, promoApplied, desktop,paymentMethod,paymentmSelect,paymentOptions,setpaymentmSelect,setPaymentMethod,selected,handlePlaceOrder,
-  unavailableIds,items,canOrder,status,selectedAddress
+  unavailableIds,items,canOrder,status,selectedAddress,appliedCoupon,couponDiscount
  }) {
   const rows = [
     {
@@ -367,17 +403,24 @@ function BillDetails({ subtotal, deliveryFee, discount, finalTotal, promoApplied
       label: "Delivery fee",
       value: deliveryFee === 0 ? "FREE" : `₹${deliveryFee.toFixed(2)}`,
       valueClass: deliveryFee === 0 ? "text-[#0D9E7E] font-bold" : "text-[#1a2e1a] font-semibold",
-      info: "Free delivery on orders above ₹399",
+      info: `Free delivery on orders above ₹${DELIVERY_CONFIG.FREE_ORDER_AMOUNT} and upto ${DELIVERY_CONFIG.freeDistance}km`,
     },
-    ...(promoApplied && discount > 0
+    ...(appliedCoupon && couponDiscount > 0
       ? [{
-          label: "Discount",
-          value: `−₹${discount.toFixed(2)}`,
+          label:(<div className="text-brand-primary font-medium text-[13px">
+          <span>
+
+          Coupon discount  
+          </span> <br />
+          ({appliedCoupon.code})
+          </div>),
+          value: `−₹${couponDiscount.toFixed(2)}`,
           valueClass: "text-[#0D9E7E] font-bold",
           info: null,
           isDiscount: true,
         }]
       : []),
+
   ];
 
 
@@ -551,6 +594,7 @@ function InfoTip({ text }) {
   subtotal, deliveryFee, discount, finalTotal,
   promoApplied, promoCode, setPromoCode, applyPromo, promoError, paymentMethod,paymentmSelect,paymentOptions,setpaymentmSelect,setPaymentMethod,selected,handlePlaceOrder,
   unavailableIds,items,canOrder,status,selectedAddress,
+  applyCoupon,removeCoupon,handleCouponRemove,appliedCoupon,couponDiscount,isApplyingCoupon,applyingCouponCode,
   desktop = false,
 },) {
   return (
@@ -565,6 +609,13 @@ function InfoTip({ text }) {
         promoApplied={promoApplied}
         promoError={promoError}
         discount={discount}
+        applyCoupon={applyCoupon}
+        removeCoupon   ={removeCoupon}
+        appliedCoupon = {appliedCoupon}
+        couponDiscount = {couponDiscount}
+        isApplyingCoupon={isApplyingCoupon}
+        handleCouponRemove={handleCouponRemove}
+        applyingCouponCode={applyingCouponCode}
       />
       <BillDetails
         subtotal={subtotal}
@@ -585,6 +636,8 @@ function InfoTip({ text }) {
         canOrder={canOrder}
         status={status}
         selectedAddress={selectedAddress}
+        appliedCoupon = {appliedCoupon}
+        couponDiscount = {couponDiscount}
 
       />
     </div>
@@ -650,8 +703,13 @@ export default function Cart() {
   const addItem        = useCartStore(s => s.addItem);
   const unavailableIds = useCartStore(s=> s.unavailableIds)
   const eta = useCartStore(s=> s.eta)
-
-
+  const applyCoupon    = useCartStore(s=>s.applyCoupon);
+  const removeCoupon    = useCartStore(s=>s.removeCoupon);
+  const appliedCoupon = useCartStore(s=>s.appliedCoupon);
+  const couponDiscount = useCartStore(s=>s.couponDiscount);
+  const isApplyingCoupon = useCartStore(s=>s.isApplyingCoupon);
+  const applyingCouponCode = useCartStore(s=>s.applyingCouponCode);
+  
     const { canOrder, status }      = useProductStore()
   // const deliveryAddress = addresses.find((addr) => addr.isDefault)
     const deliveryAddress = useAddressStore((s)=>s.selectedAddress);
@@ -662,17 +720,33 @@ export default function Cart() {
 
   useEffect(() => { fetchCart(); }, [fetchCart]);
 
-  const discount   = promoApplied ? subtotal * 0.1 : 0;
-  const finalTotal = totalAmount - discount;
+const discount   = couponDiscount ?? 0
+const finalTotal = totalAmount ?? 0
 
-  const applyPromo = () => {
-    const c = promoCode.trim().toUpperCase();
-    if (c === "VITALITY24" || c === "HEALTHY10") {
-      setPromoApplied(true); setPromoError("");
-    } else {
-      setPromoApplied(false); setPromoError("Invalid code. Try VITALITY24!");
-    }
-  };
+
+const applyPromo = async () => {
+  const code = promoCode.trim().toUpperCase()
+  setPromoError("")
+
+  if (code === "") {
+    setPromoError("Enter coupon code")
+    return
+  }
+
+  const result = await applyCoupon(code)   
+  if (result?.error) {
+    setPromoError(result.error)
+  } else {
+    setPromoCode("")   
+  }
+}
+
+const handleCouponRemove = async () => {
+  await removeCoupon()
+  setPromoCode("")
+  setPromoError("")
+}
+
 
   const handleAddSuggestion = (s) => {
     // addItem expects (productId, quantity) per the real store signature
@@ -737,7 +811,7 @@ const verifyPaymentAction = useOrderStore(
   state => state.verifyPaymentAction
 )
 
-    const [specialInstr, setSpecialInstr] = useState('')
+    // const [specialInstr, setSpecialInstr] = useState('')
 
       useEffect(() => {
     const script = document.createElement('script')
@@ -754,6 +828,10 @@ const verifyPaymentAction = useOrderStore(
 
   
 const handlePlaceOrder = async () => {
+
+  try {
+    
+  
     if (!deliveryAddress) {
       alert('Please set a delivery address')
       return
@@ -765,8 +843,10 @@ const handlePlaceOrder = async () => {
     const payload = {
       addressId: deliveryAddress.id,
       paymentMethod: paymentMethod,
-      ...(specialInstr ? { specialInstructions: specialInstr } : {}),
+      ...(instruction ? { specialInstructions: instruction } : {}),
     }
+
+    console.log('Placing order with payload:', payload, 'and idemKey:', idemKey)
 
     if (paymentMethod === 'COD') {
       await placeOrderAction(payload, idemKey)
@@ -816,7 +896,13 @@ const handlePlaceOrder = async () => {
       const rzp = new window.Razorpay(options)
       rzp.open()
     }
-  
+  } catch (error) {
+    console.error('Error placing order:', error)
+
+  }
+  finally{
+    setInstruction("")
+  }
     
   }
 
@@ -829,9 +915,24 @@ const handlePlaceOrder = async () => {
     promoApplied, promoCode, setPromoCode, applyPromo, promoError,paymentMethod,setpaymentmSelect,setPaymentMethod,paymentmSelect,paymentOptions,selected,
   handlePlaceOrder,
     // FOR UNAVAILABE OR UNSERVICIPLE PRODUCTS
-  unavailableIds,items,canOrder,status,selectedAddress:deliveryAddress
+  unavailableIds,items,canOrder,status,selectedAddress:deliveryAddress,
+   applyCoupon,removeCoupon, handleCouponRemove,appliedCoupon,couponDiscount,isApplyingCoupon,applyingCouponCode
   
   };
+
+
+  const [showInstrInput,setShowInstrInput] = useState(false);
+  const [instruction,setInstruction] = useState("");
+
+  const handleInstr =()=>{
+    if(showInstrInput){
+      setShowInstrInput(false);
+      setText("");
+    }
+    else{
+      setShowInstrInput(true)
+    }
+  }
  
   return (
     <>
@@ -897,7 +998,7 @@ const handlePlaceOrder = async () => {
           {!isLoading && items.length > 0 && (
             
           <>
-            <FreeDeliveryBar className="mb-3" freeDeliveryIn={freeDeliveryIn} subtotal={subtotal} threshold={399} />
+            <FreeDeliveryBar className="mb-3" freeDeliveryIn={freeDeliveryIn} subtotal={subtotal} threshold={DELIVERY_CONFIG.FREE_ORDER_AMOUNT} />
           </>
               )}
 
@@ -917,11 +1018,30 @@ const handlePlaceOrder = async () => {
                 ) :  (
                   items.map(item => (
                     <CartItemCard key={item.id} item={item} updateQuantity={updateQuantity} removeItem={removeItem}  
-                    isUnavailable={unavailableIds?.includes(item.product?.id)}
+                    isUnavailable={unavailableIds?.includes(item.product?.id) }
                      />
                   ))
                 )}
               </div>
+                <div className="mt-1 mb-6">
+                  <button onClick={handleInstr} className="text-xs  tracking-wide text-gray-500 cursor-pointer" >
+                    {!showInstrInput ? <> <Plus className="inline" size={16} /> Add </>
+                      : <><X  className="inline" size={16} /> Reomve </> 
+                    }
+                     Special Instructions
+                     </button>
+                 {showInstrInput &&(
+
+                  <textarea name="" id=""  
+                  placeholder="Add cooking instructions" 
+                  value={instruction}
+                  maxLength={200}
+                  onChange={(e)=>setInstruction(e.target.value)}
+                  className="w-full my-2 p-3 bg-white rounded-md outline-none border shadow-md ring-1 ring-black/5 text-xs  tracking-wide text-gray-500 border-[#eef2ee] "></textarea>
+                 )}
+                </div>
+
+              {/* </input> */}
 
               {/* Suggestions */}
               {!isLoading && items.length > 0 && (
@@ -1004,7 +1124,7 @@ const handlePlaceOrder = async () => {
             {/* {!isLoading && items.length > 0 && <VitalityImpact items={items} />} */}
 
             {/* SELECTED ADDRESS */}
-            <SelectedAddressCard eta={eta}/>
+            <SelectedAddressCard eta={eta} status={status}/>
             {/* Order summary */}
             <div className="mt-6  rounded-2xl py-5">
               <p className="text-[16px] font-extrabold text-[#1a2e1a] mb-4">Order Summary</p>

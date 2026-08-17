@@ -57,7 +57,8 @@ function getCurrentLocation() {
     }
     set({ selectedAddress: address })
     useProductStore.getState().fetchProducts()
-     useCartStore.getState().checkCartAvailability()
+     useCartStore.getState().fetchCart()
+    // useCartStore.getState().checkCartAvailability()
   },
 
   // ── Main init — reads isAuthenticated directly from authStore ─────────────
