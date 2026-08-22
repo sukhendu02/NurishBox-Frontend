@@ -52,7 +52,7 @@ function Skeleton({ className = "" }) {
 function CartItemSkeleton() {
   return (
     <div className="flex gap-4 py-5 border-b border-[#eef2ee] last:border-0">
-      <Skeleton className="w-20 h-20 md:w-24 md:h-24 rounded-xl flex-shrink-0" />
+      <Skeleton className="w-20 h-20 md:w-24 md:h-24 rounded-xl shrink-0" />
       <div className="flex-1 space-y-2">
         <Skeleton className="h-4 w-2/3" />
         <Skeleton className="h-3 w-full" />
@@ -136,7 +136,7 @@ function CartItemCard({ item, updateQuantity, removeItem,isUnavailable}) {
  
     <div className={`flex gap-4  md:gap-5 py-5 border-b border-[#eef2ee] last:border-0 items-start group ${isUnavailable? "grayscale opacity-85":""}`}>
       {/* Image */}
-      <div className="w-[76px] h-[76px] md:w-24 md:h-24 rounded-xl overflow-hidden flex-shrink-0 bg-[#E8F8F3]">
+      <div className="w-[76px] h-[76px] md:w-24 md:h-24 rounded-xl overflow-hidden shrink-0 bg-[#E8F8F3]">
         {img && <img src={img} alt={name} className="w-full h-full object-cover" />}
       </div>
 
@@ -144,7 +144,7 @@ function CartItemCard({ item, updateQuantity, removeItem,isUnavailable}) {
       <div className="flex-1 min-w-0">
         <div className="flex justify-between items-start">
           <p className="font-semibold text-[15px] md:text-[17px] text-[#1a2e1a] pr-2 leading-tight">{name}</p>
-          <div className="text-right flex-shrink-0">
+          <div className="text-right shrink-0">
             <p className="font-bold text-[15px] md:text-[17px] text-[#0D9E7E]">₹{item.itemTotal?.toFixed(2)}</p>
             {item.hasDiscount && item.itemSavings > 0 && (
               <p className="text-[11px] text-slate-400 font-semibold">Save ₹{item.itemSavings.toFixed(2)}</p>
@@ -204,22 +204,23 @@ function CartItemCard({ item, updateQuantity, removeItem,isUnavailable}) {
 }
 
 // ─── SUGGESTION CARD (list row) ───────────────────────────────────────────────
-function SuggestRow({ item, onAdd }) {
+function SuggestRow({ item, addItem }) {
   const [added, setAdded] = useState(false);
-  const handle = () => { onAdd(item); setAdded(true); setTimeout(() => setAdded(false), 1500); };
-
+const handleAdd = async () => {
+    await addItem(item.id, 1)
+  }
   return (
     <div className="flex items-center gap-3 py-3 border-b border-[#f0f5f0] last:border-0">
-      <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 bg-[#E8F8F3]">
-        <img src={item.img} alt={item.name} className="w-full h-full object-cover" />
+      <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0 bg-[#E8F8F3]">
+        <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
       </div>
       <div className="flex-1 min-w-0">
         <p className="font-semibold text-[14px] text-[#1a2e1a] truncate">{item.name}</p>
-        <p className="font-bold text-[13px] text-[#0D9E7E] mt-0.5">₹{item.price.toFixed(2)}</p>
+        <p className="font-bold text-[13px] text-[#0D9E7E] mt-0.5">₹{item.discountPrice? item.discountPrice : item.basePrice}</p>
       </div>
       <button
-        onClick={handle}
-        className={`w-8 h-8 rounded-full flex items-center justify-center border-[1.5px] transition-all duration-300 text-base font-bold flex-shrink-0 ${
+        onClick={handleAdd}
+        className={`w-8 h-8 rounded-full flex items-center justify-center border-[1.5px] transition-all duration-300 text-base font-bold shrink-0 ${
           added
             ? "bg-[#0D9E7E] border-[#0D9E7E] text-white"
             : "bg-[#f0f7f0] border-[#c2ddc2] text-[#0D9E7E] hover:bg-[#ddf0e8]"
@@ -230,25 +231,50 @@ function SuggestRow({ item, onAdd }) {
     </div>
   );
 }
+function SuggestRowSkeleton() {
+ 
+  return (
+    <div className="flex items-center gap-3 py-3 border-b border-[#f0f5f0] last:border-0">
+      <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0 bg-[#E8F8F3]">
+        <Skeleton className="w-full h-full object-cover" />
+      </div>
+      <div className="flex-1 min-w-0 space-y-2">
+        <Skeleton className="h-4 "></Skeleton>
+        <Skeleton className="h-3 w-1/3"></Skeleton>
+      </div>
+      <div className="flex items-center gap-3">
+        <Skeleton className="h-3"></Skeleton>
+      </div>
+      <Skeleton
+        // onClick={handleAdd}
+        className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 `}
+      >
+ 
+      </Skeleton>
+    </div>
+  );
+}
 
 // ─── SUGGESTION CARD (horizontal tile for mobile) ─────────────────────────────
-function SuggestTile({ item, onAdd }) {
+function SuggestTile({ item, addItem }) {
   const [added, setAdded] = useState(false);
-  const handle = () => { onAdd(item); setAdded(true); setTimeout(() => setAdded(false), 1500); };
-
+  // const handle = () => { onAdd(item); setAdded(true); setTimeout(() => setAdded(false), 1500); };
+const handleAdd = async () => {
+    await addItem(item.id, 1)
+  }
   return (
-    <div className="flex-shrink-0 w-36 rounded-2xl overflow-hidden border border-[#eef2ee] bg-white snap-start">
+    <div className="shrink-0 w-36 rounded-2xl overflow-hidden border border-[#eef2ee] bg-white snap-start">
       <div className="h-24 overflow-hidden">
-        <img src={item.img} alt={item.name} className="w-full h-full object-cover" />
+        <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
       </div>
       <div className="p-2.5 flex items-end justify-between">
         <div>
           <p className="text-[12px] font-bold text-[#1a2e1a] leading-tight">{item.name}</p>
-          <p className="text-[12px] font-bold text-[#0D9E7E] mt-0.5">₹{item.price.toFixed(2)}</p>
+        <p className="font-bold text-[13px] text-[#0D9E7E] mt-0.5">₹{item.discountPrice? item.discountPrice : item.basePrice}</p>
         </div>
         <button
-          onClick={handle}
-          className={`w-7 h-7 rounded-full flex items-center justify-center border-[1.5px] transition-all duration-300 text-sm font-bold flex-shrink-0 ${
+          onClick={handleAdd}
+          className={`w-7 h-7 rounded-full flex items-center justify-center border-[1.5px] transition-all duration-300 text-sm font-bold shrink-0 ${
             added
               ? "bg-[#0D9E7E] border-[#0D9E7E] text-white"
               : "bg-[#0D9E7E] border-[#0D9E7E] text-white hover:bg-[#0b8a6e]"
@@ -256,6 +282,28 @@ function SuggestTile({ item, onAdd }) {
         >
           {added ? "✓" : "+"}
         </button>
+      </div>
+    </div>
+  );
+}
+function SuggestTileSkeleton() {
+ 
+  return (
+    <div className="shrink-0 w-36 rounded-2xl overflow-hidden border border-[#eef2ee] bg-white snap-start">
+      <div className="h-24 overflow-hidden">
+        <Skeleton  className="w-full h-full object-cover" />
+      </div>
+      <div className="p-2.5 flex items-end justify-between space-y-2">
+        <div>
+          <Skeleton className="h-3 w-full px-10 pb-2"></Skeleton>
+        <Skeleton className="h-3 w-1/3 px-4 pt-2"></Skeleton>
+        </div>
+        <Skeleton
+         
+          className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 `}
+        >
+          
+        </Skeleton>
       </div>
     </div>
   );
@@ -268,7 +316,7 @@ function SuggestTile({ item, onAdd }) {
 //   return (
 //     <div className="border border-[#eef2ee] rounded-2xl p-5 bg-white mt-1">
 //       <div className="flex items-start gap-3">
-//         <div className="w-9 h-9 rounded-full bg-[#f0f7f0] flex items-center justify-center text-[#0D9E7E] flex-shrink-0">
+//         <div className="w-9 h-9 rounded-full bg-[#f0f7f0] flex items-center justify-center text-[#0D9E7E] shrink-0">
 //           {I.leaf}
 //         </div>
 //         <div className="flex-1">
@@ -293,7 +341,7 @@ function SuggestTile({ item, onAdd }) {
 
 
 // ─── OFFERS SECTION ───────────────────────────────────────────────────────────
-function OffersSection({ promoCode, setPromoCode, applyPromo, promoApplied, promoError, discount,   
+function OffersSection({ promoCode, setPromoCode, applyPromo, promoApplied, promoError,setPromoError, discount,   
   applyCoupon,removeCoupon, handleCouponRemove,appliedCoupon ,couponDiscount,isApplyingCoupon, applyingCouponCode }) {
  const [openOffer, setOpenOffer]= useState(false);
  
@@ -340,7 +388,7 @@ function OffersSection({ promoCode, setPromoCode, applyPromo, promoApplied, prom
 
       {appliedCoupon && discount > 0 && (
   <div className="flex items-start gap-2.5  border border-[#b6e8d4] rounded-xl px-3 py-2.5 mb-2">
-    <span className="text-[#0D9E7E] mt-0.5 flex-shrink-0">
+    <span className="text-[#0D9E7E] mt-0.5 shrink-0">
     <Tag/>
     </span>
     <div className="flex-1 items-center min-w-0">
@@ -351,7 +399,7 @@ function OffersSection({ promoCode, setPromoCode, applyPromo, promoApplied, prom
     </div>
     <button
       onClick={handleCouponRemove}
-      className="text-[11px] cursor-pointer  font-semibold text-gray-700 underline opacity-60 hover:opacity-100 transition-opacity flex-shrink-0 mt-0.5"
+      className="text-[11px] cursor-pointer  font-semibold text-gray-700 underline opacity-60 hover:opacity-100 transition-opacity shrink-0 mt-0.5"
     >
       Remove
     </button>
@@ -379,8 +427,11 @@ function OffersSection({ promoCode, setPromoCode, applyPromo, promoApplied, prom
        removeCoupon={removeCoupon}
        isApplyingCoupon={isApplyingCoupon}
 
+
      
          promoError={promoError}
+         setPromoError={setPromoError}
+         
   onCouponApplied={() => setOpenOffer(false)}
 applyingCouponCode={applyingCouponCode}
         />
@@ -592,7 +643,7 @@ function InfoTip({ text }) {
 // ─── ORDER SUMMARY (composed) ─────────────────────────────────────────────────
  function OrderSummary({
   subtotal, deliveryFee, discount, finalTotal,
-  promoApplied, promoCode, setPromoCode, applyPromo, promoError, paymentMethod,paymentmSelect,paymentOptions,setpaymentmSelect,setPaymentMethod,selected,handlePlaceOrder,
+  promoApplied, promoCode, setPromoCode, applyPromo, promoError,setPromoError, paymentMethod,paymentmSelect,paymentOptions,setpaymentmSelect,setPaymentMethod,selected,handlePlaceOrder,
   unavailableIds,items,canOrder,status,selectedAddress,
   applyCoupon,removeCoupon,handleCouponRemove,appliedCoupon,couponDiscount,isApplyingCoupon,applyingCouponCode,
   desktop = false,
@@ -608,6 +659,7 @@ function InfoTip({ text }) {
         applyPromo={applyPromo}
         promoApplied={promoApplied}
         promoError={promoError}
+        setPromoError={setPromoError}
         discount={discount}
         applyCoupon={applyCoupon}
         removeCoupon   ={removeCoupon}
@@ -709,6 +761,12 @@ export default function Cart() {
   const couponDiscount = useCartStore(s=>s.couponDiscount);
   const isApplyingCoupon = useCartStore(s=>s.isApplyingCoupon);
   const applyingCouponCode = useCartStore(s=>s.applyingCouponCode);
+
+  
+  // SUGGESTED PRODUCT
+  const isSuggestionsLoading = useCartStore(s=>s.isSuggestionsLoading);
+  const suggestions = useCartStore(s=>s.suggestions);
+
   
     const { canOrder, status }      = useProductStore()
   // const deliveryAddress = addresses.find((addr) => addr.isDefault)
@@ -748,11 +806,11 @@ const handleCouponRemove = async () => {
 }
 
 
-  const handleAddSuggestion = (s) => {
-    // addItem expects (productId, quantity) per the real store signature
-    // For suggestions that don't exist in DB yet, we just fire addItem with the suggestion id
-    addItem(s.id, 1);
-  };
+  // const handleAddSuggestion = (s) => {
+  //   // addItem expects (productId, quantity) per the real store signature
+  //   // For suggestions that don't exist in DB yet, we just fire addItem with the suggestion id
+  //   addItem(s.id, 1);
+  // };
 
  
 
@@ -912,7 +970,7 @@ const handlePlaceOrder = async () => {
 
    const summaryProps = {
     subtotal, deliveryFee, discount, finalTotal,
-    promoApplied, promoCode, setPromoCode, applyPromo, promoError,paymentMethod,setpaymentmSelect,setPaymentMethod,paymentmSelect,paymentOptions,selected,
+    promoApplied, promoCode, setPromoCode, applyPromo, promoError,setPromoError,paymentMethod,setpaymentmSelect,setPaymentMethod,paymentmSelect,paymentOptions,selected,
   handlePlaceOrder,
     // FOR UNAVAILABE OR UNSERVICIPLE PRODUCTS
   unavailableIds,items,canOrder,status,selectedAddress:deliveryAddress,
@@ -1044,16 +1102,28 @@ const handlePlaceOrder = async () => {
               {/* </input> */}
 
               {/* Suggestions */}
-              {!isLoading && items.length > 0 && (
+
+              {!isLoading && items.length > 0 &&
+              //  && suggestions.length > 0 
+              (
 
                 <>
                   <h2 className="text-[20px] font-semibold text-gray-700 mb-3 tracking-tight">Complete Your Meal</h2>
+                  {isSuggestionsLoading && suggestions.length === 0 &&
+        Array.from({ length: 4 }).map((_, index) => (
+          <SuggestRowSkeleton key={index} />
+        ))
+      }
                   <div className="bg-white rounded-2xl border shadow-md  ring-1 ring-black/5 border-[#eef2ee] px-6 py-1 mb-8">
-                    {SUGGESTIONS.map(s => (
-                      <SuggestRow key={s.id} item={s} onAdd={handleAddSuggestion} />
+                
+                    { suggestions.length > 0 && suggestions.map(s => (
+                      <SuggestRow key={s.id} item={s} addItem={addItem} />
+
+                      
                     ))}
+                   
                   </div>
-                  {/* {items.length > 0 && <VitalityImpact items={items} />} */}
+               
                 </>
               )}
 
@@ -1106,15 +1176,44 @@ const handlePlaceOrder = async () => {
                     />
                 ))
               )}
+
+
+                <div className="mt-1 mb-6">
+                  <button onClick={handleInstr} className="text-xs  tracking-wide text-gray-500 cursor-pointer" >
+                    {!showInstrInput ? <> <Plus className="inline" size={16} /> Add </>
+                      : <><X  className="inline" size={16} /> Reomve </> 
+                    }
+                     Special Instructions
+                     </button>
+                 {showInstrInput &&(
+
+                  <textarea name="" id=""  
+                  placeholder="Add cooking instructions" 
+                  value={instruction}
+                  maxLength={200}
+                  onChange={(e)=>setInstruction(e.target.value)}
+                  className="w-full my-2 p-3 bg-white rounded-md outline-none border shadow-md ring-1 ring-black/5 text-xs  tracking-wide text-gray-500 border-[#eef2ee] "></textarea>
+                 )}
+                </div>
             </div>
 
             {/* Horizontal suggestions */}
-            {!isLoading && items.length > 0 && (
+            {!isLoading && items.length > 0  && 
+            // suggestions.length > 0 &&
+            (
               <div className="mb-6">
                 <h2 className="text-[18px] font-extrabold text-gray-700 mb-3 tracking-tight">Complete Your Meal</h2>
+
+           
                 <div className="flex gap-3 overflow-x-auto snap-x-scroll pb-1 snap-x-scroll mx-1 px-1">
-                  {SUGGESTIONS.map(s => (
-                    <SuggestTile key={s.id} item={s} onAdd={handleAddSuggestion} />
+       {isSuggestionsLoading && suggestions.length === 0 &&
+        Array.from({ length: 4 }).map((_, index) => (
+          <SuggestRowSkeleton key={index} />
+        ))
+      }
+                  
+                  { suggestions.length > 0 && suggestions.map(s => (
+                    <SuggestTile key={s.id} item={s} addItem={addItem} />
                   ))}
                 </div>
               </div>

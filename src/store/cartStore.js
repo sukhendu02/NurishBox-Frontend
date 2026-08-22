@@ -15,6 +15,7 @@ import toast from 'react-hot-toast'
 import useAddressStore from './addressStrore'
 import { useProductStore } from './productStore'
 import { DELIVERY_CONFIG } from '../constant/deliveryConstant'
+import { getSuggestedItems } from '../api/menu.api.js'
 const TOAST_SUCCESS = { style: { background: '#0D9E7E', color: 'white' } }
 const TOAST_ERROR   = { style: { background: '#ef4444', color: 'white' } }
 
@@ -41,6 +42,9 @@ const useCartStore = create((set, get) => ({
   isLoading: false,
   error:     null,
 
+  // PRODUCT SUGGESTION IN THE CART
+suggestions: [],
+isSuggestionsLoading: false,
   
 
   setCart: (data) => {
@@ -80,6 +84,9 @@ const useCartStore = create((set, get) => ({
       // console.log(res)
       console.log('Cart fetched:', res.data)
       get().setCart(res.data)
+
+       const sugg=await get().fetchProductSuggestion()
+  
             
     } catch (err) {
       set({ error: err.message })
@@ -94,7 +101,7 @@ const useCartStore = create((set, get) => ({
       const res = await addToCart(productId, quantity)
       get().setCart(res.data)
        await get().fetchCart()
-      // toast.success('Added to cart', TOAST_SUCCESS)
+      const sugg=await get().fetchProductSuggestion()
     } catch (err) {
       toast.error(err.message || 'Failed to add item', TOAST_ERROR)
     }
@@ -143,8 +150,9 @@ const useCartStore = create((set, get) => ({
       const res = await removeItemApi(itemId)
       get().setCart(res.data)
        await get().fetchCart()
-        // await get().checkCartAvailability() 
-      // toast.success('Item removed', TOAST_SUCCESS)
+
+      await get().fetchProductSuggestion()
+        
     } catch (err) {
       set({ items: previousItems })
       toast.error(err.message || 'Failed to remove', TOAST_ERROR)
@@ -265,6 +273,27 @@ removeCoupon: async () => {
     set({ isLoading : false })
   }
 },
+
+fetchProductSuggestion:async()=>{
+   set({ isSuggestionsLoading: true })
+   try {
+     const res = await getSuggestedItems();
+     console.log('Suggestions in fetchProduct:', res.data.suggestedItems)
+
+       set({
+      suggestions: res.data.suggestedItems ?? [],
+    })
+   } catch (error) {
+    console.error('Failed to fetch suggestions:', error)
+
+    set({
+      suggestions: [],
+    })
+   }
+   finally{
+    set({isSuggestionsLoading:false})
+   }
+}
 
 }))
 

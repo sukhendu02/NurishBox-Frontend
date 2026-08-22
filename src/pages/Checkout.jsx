@@ -186,7 +186,7 @@ export default function Checkout({ onClose }) {
               Order Placed! 🎉
             </p>
             <p style={{ fontSize: '0.875rem', color: '#9CA3AF', fontWeight: '500', marginTop: '0.5rem' }}>
-              Your order has been confirmed
+              Your order has been placed.
             </p>
           </>
         )}

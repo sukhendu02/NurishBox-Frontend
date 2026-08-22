@@ -36,7 +36,7 @@ const OFFERS = [
   },
 ];
 
-export default function OffersSheet({ openOffer, onClose,appliedCoupon,applyCoupon,removeCoupon,isApplyingCoupon, promoError,
+export default function OffersSheet({ openOffer, onClose,appliedCoupon,applyCoupon,removeCoupon,isApplyingCoupon, promoError,setPromoError,
   onCouponApplied,applyingCouponCode }) {
 
   const [visible, setVisible] = useState(false);
@@ -44,7 +44,7 @@ export default function OffersSheet({ openOffer, onClose,appliedCoupon,applyCoup
   const [couponModelError, setCouponModelError] = useState(null);
   
   const handleApplyCoupon = async (code) => {
-    
+    setPromoError("")
     setCouponModelError(null)
   const result = await applyCoupon(code);
   console.log(
@@ -379,7 +379,7 @@ function OfferCard({ offer, onApply, isApplied,isApplyingCoupon }) {
  
         <div className="min-w-0 flex-1">
           <p className="text-[13.5px] font-semibold text-gray-900 leading-snug">
-            {offer.title} test
+            {offer.title} 
           </p>
  
           <div className="mt-2 flex items-center gap-2">
