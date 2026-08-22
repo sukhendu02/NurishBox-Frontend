@@ -68,7 +68,7 @@ export default function MobileFixedCTA({
 {disabledReason && (
         <p className=" text-xs my-2 text-red-400 font-medium">{disabledReason}</p>
       )}
-      <div className="grid grid-cols-3 items-center gap-3">
+      <div className="grid grid-cols-2 items-center gap-3">
         
         <button
           onClick={() => setpaymentmSelect(prev => !prev)}
@@ -91,7 +91,7 @@ export default function MobileFixedCTA({
         <button
           onClick={canPlaceOrder?handlePlaceOrder:undefined}
           disabled={!canPlaceOrder}
-          className={`py-3 col-span-2 rounded-2xl  text-white font-extrabold text-[14px] flex items-center justify-center gap-2.5 shadow-[0_6px_20px_rgba(13,158,126,.3)] active:scale-[.98] transition-transform 
+          className={`py-3 col-span-1 rounded-2xl  text-white font-extrabold text-[14px] flex items-center justify-center gap-2.5 shadow-[0_6px_20px_rgba(13,158,126,.3)] active:scale-[.98] transition-transform 
             ${!canPlaceOrder ? "bg-gray-400":"bg-linear-to-br from-brand-primary to-brand-dark"} `}
         >
           Place Order {I.arrow}
