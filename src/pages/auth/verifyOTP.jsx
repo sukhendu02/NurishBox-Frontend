@@ -119,9 +119,9 @@ export default function VerifyOTP() {
       <div className="flex items-center gap-3 mb-8">
         <button
           onClick={() => navigate('/login')}
-          className="w-10 h-10 cursor-pointer flex items-center justify-center rounded-full bg-brand-surface text-text-brand active:scale-90 transition-transform"
+          className="w-10 h-10 cursor-pointer flex items-center justify-center rounded-full bg-brand-primary text-text-brand active:scale-90 transition-transform"
         >
-          <ArrowLeft size={20} />
+          <ArrowLeft size={20} className='text-white' />
         </button>
         <div className="flex items-center gap-2">
           <Leaf size={20} className="text-brand-primary" />
@@ -151,7 +151,7 @@ export default function VerifyOTP() {
               value={d}
               onChange={(e) => handleChange(i, e.target.value)}
               onKeyDown={(e) => handleKeyDown(i, e)}
-              className={`w-12 h-12 text-center text-xl font-bold text-text-brand rounded-xl border-2 outline-none transition-all duration-150
+              className={`w-9 h-9 sm:w-12 sm:h-12 text-center text-lg  sm:text-xl  font-semibold text-text-brand rounded-xl border sm:border-2 outline-none transition-all duration-150
                 ${d ? 'bg-brand-surface border-brand-primary' : 'bg-white border-brand-tint'}
                 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20`}
             />
@@ -163,7 +163,7 @@ export default function VerifyOTP() {
           onClick={() => otp.length === OTP_LENGTH && submitOTP(otp)}
           loading={loading}
           disabled={otp.length < OTP_LENGTH}
-          className='cursor-pointer'
+          className='cursor-pointer bg-brand-primary '
         >
           Verify OTP
         </Button>
@@ -173,7 +173,7 @@ export default function VerifyOTP() {
           {timer > 0 ? (
             <p className="text-sm text-gray-400 ">
               Resend in{' '}
-              <span className="font-semibold text-text-brand">
+              <span className="font-semibold text-gray-700">
                 0:{String(timer).padStart(2, '0')}
               </span>
             </p>

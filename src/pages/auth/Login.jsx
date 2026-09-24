@@ -169,18 +169,18 @@ export default function Login() {
               </form>
 
               {/* Divider */}
-              <div className="flex items-center my-6">
+              {/* <div className="flex items-center my-6">
                 <div className="flex-1 h-px bg-gray-200"></div>
                 <span className="px-3 text-xs tracking-wider text-gray-500">
                   OR CONTINUE WITH
                 </span>
                 <div className="flex-1 h-px bg-gray-200"></div>
-              </div>
+              </div> */}
 
          
 
               {/* Sign up link */}
-              <p className="text-center text-sm text-gray-500 mt-8">
+              {/* <p className="text-center text-sm text-gray-500 mt-8">
                 Don't have an account?{' '}
                 <a
                   href="#"
@@ -188,7 +188,7 @@ export default function Login() {
                 >
                   Create account
                 </a>
-              </p>
+              </p> */}
             </div>
           </div>
         </div>

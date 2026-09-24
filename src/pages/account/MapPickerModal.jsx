@@ -208,7 +208,7 @@ export default function MapPickerModal({ open, onClose, onConfirm, initial }) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center px-0 sm:px-4">
+    <div className="fixed inset-0 z-100 flex items-end sm:items-center justify-center px-0 sm:px-4">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
@@ -369,7 +369,7 @@ export default function MapPickerModal({ open, onClose, onConfirm, initial }) {
           >
             {confirming
               ? <Loader size={16} className="animate-spin" />
-              : <ArrowRight size={16} />
+              : <></>
             }
             {confirming ? "Getting address…" : "Confirm Location"}
           </button>

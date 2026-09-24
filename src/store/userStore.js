@@ -25,6 +25,7 @@ const useUserStore = create((set, get) => ({
     try {
       set({ isLoadingProfile: true })
       const response = await getProfile()
+    
       if (response.success) {
         set({ profile: response.data })
       } else {
@@ -41,36 +42,77 @@ const useUserStore = create((set, get) => ({
     }
   },
 
-  updateProfile: async (data) => {
-      const previousProfile = get().profile  // ← save for rollback
+  // updateProfile: async (data) => {
+  //     const previousProfile = get().profile  // ← save for rollback
 
-     set(state => ({ profile: { ...state.profile, ...data } }))
+  //    set(state => ({ profile: { ...state.profile, ...data } }))
+  //   try {
+  //     set({ isSaving: true })
+  //     const response = await updateProfile(data)
+  //     if (response.success) {
+  //       set({ profile: response.data })
+  //         set(state => ({ profile: { ...state.profile, ...response.data } }))
+  //       toast.success('Profile updated', {
+  //         style: { background: '#0D9E7E', color: 'white' },
+  //       })
+  //       return true
+  //     } else {
+  //       toast.error(response.error?.message || 'Failed to update profile', {
+  //         style: { background: '#ef4444', color: 'white' },
+  //       })
+  //       return false
+  //     }
+  //   } catch (error) {
+  //     toast.error(error.message || 'Failed to update profile', {
+  //       style: { background: '#ef4444', color: 'white' },
+  //     })
+  //     return false
+  //   } finally {
+  //     set({ isSaving: false })
+  //   }
+  // },
+
+  updateProfile: async (data) => {
+    const previousProfile = get().profile   // snapshot for rollback
+  
+    // Optimistic update — the new values show immediately
+    set((state) => ({ profile: { ...state.profile, ...data } }))
+  
     try {
       set({ isSaving: true })
       const response = await updateProfile(data)
+  
       if (response.success) {
-        set({ profile: response.data })
-          set(state => ({ profile: { ...state.profile, ...response.data } }))
+        // Reconcile with what the server actually stored (it may normalize
+        // fields, e.g. re-verify flags, formatted phone, etc.)
+        set((state) => ({ profile: { ...state.profile, ...response.data } }))
         toast.success('Profile updated', {
           style: { background: '#0D9E7E', color: 'white' },
         })
-        return true
-      } else {
-        toast.error(response.error?.message || 'Failed to update profile', {
-          style: { background: '#ef4444', color: 'white' },
-        })
-        return false
+        return { ok: true }
       }
+  
+      // Server rejected it — roll back to the pre-edit snapshot
+      set({ profile: previousProfile })
+      const message = response.error?.message || 'Failed to update profile'
+      toast.error(message, { style: { background: '#ef4444', color: 'white' } })
+      return { ok: false, error: message }
+  
     } catch (error) {
-      toast.error(error.message || 'Failed to update profile', {
-        style: { background: '#ef4444', color: 'white' },
-      })
-      return false
+      // Network / unexpected error — roll back too
+      set({ profile: previousProfile })
+      const message =
+        error?.response?.data?.message ||
+        error?.response?.data?.error?.message ||
+        error.message ||
+        'Failed to update profile'
+      toast.error(message, { style: { background: '#ef4444', color: 'white' } })
+      return { ok: false, error: message }
+  
     } finally {
       set({ isSaving: false })
     }
   },
-
   fetchAddresses: async () => {
         //  set(state => ({ profile: { ...state.profile, ...data } }))
     try {

@@ -1,6 +1,7 @@
 import { useEffect, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useUserStore from '../../store/userStore'
+import {CircleCheck, Package2 } from 'lucide-react'
 
 
 // ─── Status config ────────────────────────────────────────────────
@@ -179,20 +180,17 @@ function EmptyState({ onShop }) {
   return (
     <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
       <div className="w-16 h-16 rounded-2xl bg-brand-surface flex items-center justify-center mb-4">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0D9E7E" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
-          <line x1="3" y1="6" x2="21" y2="6" />
-          <path d="M16 10a4 4 0 01-8 0" />
-        </svg>
+      <Package2 className='text-brand-dark' />
+      
       </div>
       <p className="text-base  text-text-brand">No orders yet</p>
       <p className="text-sm text-gray-400 mt-1">Your placed orders will appear here</p>
-      <button
+      {/* <button
         onClick={onShop}
         className="mt-6 bg-brand-primary text-white text-sm  px-6 py-3 rounded-xl hover:bg-brand-dark transition-colors"
       >
         Start Shopping
-      </button>
+      </button> */}
     </div>
   )
 }

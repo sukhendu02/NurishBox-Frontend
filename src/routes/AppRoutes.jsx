@@ -15,7 +15,9 @@ import ManageAddress from '../pages/account/ManageAddresses.jsx'
 import Orders from '../pages/account/Orders.jsx'
 import Coupons from '../pages/account/Coupons.jsx'
 import OrderTracking from '../components/order/OrderTracking.jsx'
-
+import SettingsPage from '../pages/account/SettingsPage.jsx'
+import GiftCard from '../pages/account/GiftCard.jsx'
+import Feedback from '../pages/account/Feedback.jsx'
 
 export default function AppRoutes() {
   return (
@@ -43,6 +45,9 @@ export default function AppRoutes() {
         <Route path="orders"         element={<Orders />} />
         <Route path="orders/track/:orderId"         element={<OrderTracking/>} />
         <Route path="my-coupons"     element={<Coupons />} />
+        <Route path="settings"     element={<SettingsPage/>} />
+        <Route path="gift-cards"     element={<GiftCard/>} />
+        <Route path="feedback"     element={<Feedback/>} />
 
       </Route>
     </Routes>

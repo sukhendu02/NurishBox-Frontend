@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Leaf, Sparkles } from 'lucide-react'
+import { Leaf, Sparkles,ArrowLeft } from 'lucide-react'
 import toast from 'react-hot-toast'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
@@ -9,6 +9,9 @@ import { saveTokens, clearTempToken } from '../../utils/token'
 import useAuthStore from '../../store/authStore'
 import useCartStore from '../../store/cartStore'
 import useAddressStore from '../../store/addressStrore'
+
+
+
 
 export default function Onboarding() {
   const navigate = useNavigate()
@@ -50,13 +53,19 @@ export default function Onboarding() {
 
   return (
     <div className="min-h-screen bg-white flex flex-col px-6 py-10">
-      {/* Brand */}
-      <div className="flex items-center gap-2 mb-8">
-        <div className="w-10 h-10 rounded-xl bg-brand-primary flex items-center justify-center">
-          <Leaf size={20} className="text-white" strokeWidth={2.5} />
+        <div className="flex items-center gap-3 mb-8">
+        <button
+          onClick={() => navigate('/login')}
+          className="w-10 h-10 cursor-pointer flex items-center justify-center rounded-full bg-brand-primary text-text-brand active:scale-90 transition-transform"
+        >
+          <ArrowLeft size={20} className='text-white' />
+        </button>
+        <div className="flex items-center gap-2">
+          <Leaf size={20} className="text-brand-primary" />
+          <span className="font-bold text-text-brand">NurishBox</span>
         </div>
-        <span className="font-bold text-text-brand text-lg">NurishBox</span>
       </div>
+   
 
       {/* Content */}
       <div className="flex-1 flex flex-col justify-center max-w-sm w-full mx-auto gap-6">
@@ -68,7 +77,7 @@ export default function Onboarding() {
               Almost there!
             </span>
           </div> */}
-          <h2 className="text-2xl font-bold text-text-brand mb-1">
+          <h2 className="text-2xl font-semibold text-gray-600 mb-1">
             Almost there! 
           </h2>
           <p className="text-gray-400 text-sm">Tell us a bit about yourself</p>
@@ -78,18 +87,20 @@ export default function Onboarding() {
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <input
             label="Full Name *"
-            placeholder="Rahul Sharma"
+            placeholder="Full Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            className='w-full px-4 py-3.5 bg-gray-100 rounded-lg text-gray-700 placeholder-gray-400 focus:outline-none border border-brand-primary focus:ring-2 focus:ring-brand-primary/40 transition'
             
           />
           <input
             label="Email (optional)"
             type="email"
-            placeholder="rahul@gmail.com"
+            placeholder="E-mail"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             hint="For order receipts and offers"
+            className='w-full px-4 py-3.5 bg-gray-100 rounded-lg text-gray-700 placeholder-gray-400 focus:outline-none border border-brand-primary focus:ring-2 focus:ring-brand-primary/40 transition'
           />
           <Button type="submit" loading={loading} className="mt-2 cursor-pointer">
             Get Started

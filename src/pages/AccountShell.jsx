@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { BadgeCheck } from "lucide-react";
+import { ArrowRight, BadgeCheck, ChevronRight, LifeBuoy } from "lucide-react";
 import useAuthStore from "../store/authStore";
 import useUserStore from "../store/userStore";
 import { clearTokens } from "../utils/token.js"; // adjust path as needed
@@ -25,6 +25,7 @@ export const Icon = {
   chevron: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>,
   edit:    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>,
   verify:  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>,
+  LifeBuoy:<LifeBuoy/>
 };
 
 // ─── ROUTE MAP ────────────────────────────────────────────────────────────────
@@ -33,7 +34,7 @@ export const SIDEBAR_MENU = [
   { id: "coupons",    label: "My Coupons",          path: "/account/my-coupons",       icon: Icon.coupon   },
   { id: "gifts",      label: "Gift Cards",          path: "/account/gift-cards",       icon: Icon.gift     },
   { id: "orders",     label: "Recent Orders",       path: "/account/orders",           icon: Icon.receipt  },
-  { id: "favorites",  label: "Favourites",          path: "/account/favourites",       icon: Icon.heart    },
+  // { id: "favorites",  label: "Favourites",          path: "/account/favourites",       icon: Icon.heart    },
   { id: "addresses",  label: "Delivery Addresses",  path: "/account/manage-address",   icon: Icon.pin      },
   { id: "settings",   label: "Settings",            path: "/account/settings",         icon: Icon.settings },
   { id: "feedback",   label: "Feedback",            path: "/account/feedback",         icon: Icon.chat     },
@@ -70,7 +71,7 @@ export function Sk({ className = "" }) {
 export function ProfileHeaderSkeleton({ compact = false }) {
   return (
     <div className="flex items-center gap-4">
-      <Sk className={`rounded-full flex-shrink-0 ${compact ? "w-14 h-14" : "w-20 h-20"}`} />
+      <Sk className={`rounded-full shrink-0 ${compact ? "w-14 h-14" : "w-20 h-20"}`} />
       <div className="flex flex-col gap-2 flex-1">
         <Sk className={`${compact ? "h-4 w-28" : "h-5 w-36"}`} />
         <Sk className="h-3 w-44" />
@@ -82,10 +83,10 @@ export function ProfileHeaderSkeleton({ compact = false }) {
 
 export function WalletCardSkeleton() {
   return (
-    <div className="relative rounded-2xl overflow-hidden p-5 h-[148px]"
+    <div className="relative rounded-2xl overflow-hidden p-5 h-37"
       style={{ background: "linear-gradient(135deg,#c2e8da 0%,#a8d5c4 100%)" }}>
-      <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full opacity-10 border-[32px] border-white" />
-      <div className="absolute -bottom-10 -left-6 w-32 h-32 rounded-full opacity-10 border-[20px] border-white" />
+      <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full opacity-10 border-32 border-white" />
+      <div className="absolute -bottom-10 -left-6 w-32 h-32 rounded-full opacity-10 border-20 border-white" />
       <div className="relative flex items-start justify-between mb-6">
         <Sk className="w-10 h-10 rounded-xl opacity-50" />
         <Sk className="h-3 w-28 rounded-full opacity-40" />
@@ -136,7 +137,7 @@ export function PreferencesSkeleton() {
       <div className="flex flex-col gap-2">
         {[0, 1, 2].map(i => (
           <div key={i} className="flex items-center gap-3 bg-white rounded-2xl px-4 py-3.5 border border-[#eef5f0]">
-            <Sk className="w-9 h-9 rounded-xl flex-shrink-0" />
+            <Sk className="w-9 h-9 rounded-xl shrink-0" />
             <Sk className="flex-1 h-3.5 rounded-full" />
             <Sk className="w-4 h-4 rounded" />
           </div>
@@ -150,7 +151,7 @@ export function SidebarSkeleton() {
   return (
     <div className="bg-white rounded-2xl border border-[#eef5f0] overflow-hidden">
       <div className="p-5 border-b border-[#f0f5f2] flex items-center gap-3">
-        <Sk className="w-12 h-12 rounded-full flex-shrink-0" />
+        <Sk className="w-12 h-12 rounded-full shrink-0" />
         <div className="flex flex-col gap-2 flex-1">
           <Sk className="h-3.5 w-24 rounded-full" />
           <Sk className="h-3 w-16 rounded-full" />
@@ -159,7 +160,7 @@ export function SidebarSkeleton() {
       <div className="p-2 flex flex-col gap-1">
         {Array.from({ length: 8 }).map((_, i) => (
           <div key={i} className="flex items-center gap-3 px-3 py-2.5 rounded-xl">
-            <Sk className="w-4 h-4 rounded flex-shrink-0" />
+            <Sk className="w-4 h-4 rounded shrink-0" />
             <Sk className="h-3 rounded-full" style={{ width: `${50 + (i % 3) * 18}%` }} />
           </div>
         ))}
@@ -228,9 +229,9 @@ function SidebarContent({ profile, isLoadingProfile, onLogout }) {
         ) : (
           <div className="flex items-center gap-3">
             {avatarUrl ? (
-              <img src={avatarUrl} alt={name} className="w-12 h-12 rounded-full object-cover border-2 border-[#B2E8D6]" />
+              <img src={avatarUrl} alt={name} className="w-12 h-12 rounded-full object-cover border-2 bg-brand-tint" />
             ) : (
-              <div className="w-12 h-12 rounded-full bg-[#E8F8F3] border-2 border-[#B2E8D6] flex items-center justify-center">
+              <div className="w-12 h-12 rounded-full  border-2 bg-brand-surface border-brand-dark flex items-center justify-center">
                 <span className="text-[20px] font-black text-brand-dark">{name?.[0]?.toUpperCase() ?? "?"}</span>
               </div>
             )}
@@ -251,6 +252,12 @@ function SidebarContent({ profile, isLoadingProfile, onLogout }) {
               {joined && (
           <p className="text-[11px] text-[#bbb] mt-1">Member since {joined}</p>
         )}
+
+        <span className="text-[11px] items-center text-brand-dark ">
+          <Link to='/account/settings'>
+          Edit <ChevronRight className="inline" size={12}/>
+          </Link>
+        </span>
             </div>
           </div>
         )}
@@ -267,11 +274,11 @@ function SidebarContent({ profile, isLoadingProfile, onLogout }) {
               to={item.path}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl mb-0.5 transition-all ${
                 isActive
-                  ? "bg-[#E8F8F3] text-[#0D9E7E]"
+                  ? "bg-brand-surface text-[#0D9E7E]"
                   : "text-[#555] hover:bg-[#f5faf7] hover:text-[#0D9E7E]"
               }`}
             >
-              <span className={`w-4 h-4 flex-shrink-0 ${isActive ? "text-[#0D9E7E]" : "text-[#aaa]"}`}>
+              <span className={`w-4 h-4 shrink-0 ${isActive ? "text-[#0D9E7E]" : "text-[#aaa]"}`}>
                 {item.icon}
               </span>
               <span className={`text-[13px] ${isActive ? "font-bold text-[#0D9E7E]" : "font-semibold"}`}>
@@ -381,7 +388,7 @@ export default function AccountShell() {
         <div className="flex flex-1 max-w-6xl mx-auto w-full px-6 py-8 gap-7">
 
           {/* LEFT sidebar */}
-          <aside className="w-64 flex-shrink-0">
+          <aside className="w-64 shrink-0">
             <div className="sticky top-24">
               {isLoadingProfile
                 ? <SidebarSkeleton />

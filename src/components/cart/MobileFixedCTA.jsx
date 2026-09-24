@@ -68,7 +68,7 @@ export default function MobileFixedCTA({
 {disabledReason && (
         <p className=" text-xs my-2 text-red-400 font-medium">{disabledReason}</p>
       )}
-      <div className="grid grid-cols-2 items-center gap-3">
+      <div className="grid grid-cols-2 items-center gap-1">
         
         <button
           onClick={() => setpaymentmSelect(prev => !prev)}

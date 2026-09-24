@@ -1103,29 +1103,39 @@ const handlePlaceOrder = async () => {
 
               {/* Suggestions */}
 
-              {!isLoading && items.length > 0 &&
-              //  && suggestions.length > 0 
-              (
+              {/* {!isLoading && items.length > 0 && */}
+              {/* //  && suggestions.length > 0  */}
+              {!isLoading &&
+  items.length > 0 &&
+  (isSuggestionsLoading || suggestions.length > 0) && (
+    <>
+      <h2 className="text-[20px] font-semibold text-gray-700 mb-3 tracking-tight">
+        Complete Your Meal
+      </h2>
 
-                <>
-                  <h2 className="text-[20px] font-semibold text-gray-700 mb-3 tracking-tight">Complete Your Meal</h2>
-                  {isSuggestionsLoading && suggestions.length === 0 &&
-        Array.from({ length: 4 }).map((_, index) => (
-          <SuggestRowSkeleton key={index} />
-        ))
-      }
-                  <div className="bg-white rounded-2xl border shadow-md  ring-1 ring-black/5 border-[#eef2ee] px-6 py-1 mb-8">
-                
-                    { suggestions.length > 0 && suggestions.map(s => (
-                      <SuggestRow key={s.id} item={s} addItem={addItem} />
+      <div className="bg-white rounded-2xl border shadow-md ring-1 ring-black/5 border-[#eef2ee] px-6 py-1 mb-8">
 
-                      
-                    ))}
-                   
-                  </div>
-               
-                </>
-              )}
+        {/* Show skeleton only when there are no suggestions yet */}
+        {isSuggestionsLoading && suggestions.length === 0 &&
+          Array.from({ length: 4 }).map((_, index) => (
+            <SuggestRowSkeleton key={index} />
+          ))
+        }
+
+        {/* Keep existing suggestions visible during refetch */}
+        {suggestions.length > 0 &&
+          suggestions.map((s) => (
+            <SuggestRow
+              key={s.id}
+              item={s}
+              addItem={addItem}
+            />
+          ))
+        }
+
+      </div>
+    </>
+  )}
 
               {/* selected addresses */}
               <SelectedAddressCard eta={eta}/>
@@ -1198,8 +1208,12 @@ const handlePlaceOrder = async () => {
             </div>
 
             {/* Horizontal suggestions */}
-            {!isLoading && items.length > 0  && 
-            // suggestions.length > 0 &&
+            {/* {!isLoading && items.length > 0  &&  */}
+            {/* // suggestions.length > 0 && */}
+
+            {!isLoading &&
+  items.length > 0 &&
+  (isSuggestionsLoading || suggestions.length > 0) && 
             (
               <div className="mb-6">
                 <h2 className="text-[18px] font-extrabold text-gray-700 mb-3 tracking-tight">Complete Your Meal</h2>

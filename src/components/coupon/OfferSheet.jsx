@@ -331,6 +331,11 @@ const [offersError, setOffersError] = useState(null)
 
         </>
       )}
+      {!isLoadingOffers && availableCoupons.length <= 0 && userCoupons.length <= 0 &&(
+        <>
+        <p className="text-gray-400 text-center text-xs my-4"> No available coupons</p>
+        </>
+      )}
 
           {/* {OFFERS.map((offer) => (
             <OfferCard

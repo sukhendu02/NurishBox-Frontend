@@ -998,7 +998,7 @@ const isEdit = !!initial;
         </div>
 
         {/* lat/lng chip — confirms location was captured */}
-        {(form.latitude && form.longitude) && (
+        {/* {(form.latitude && form.longitude) && (
           <div className="px-5 pt-3 shrink-0">
             <div className="flex items-center gap-1.5 bg-brand-surface rounded-xl px-3 py-2">
               <MapPin size={12} className="text-brand-primary shrink-0" />
@@ -1008,7 +1008,7 @@ const isEdit = !!initial;
               <Check size={12} className="text-brand-primary ml-auto shrink-0" />
             </div>
           </div>
-        )}
+        )} */}
 
         {/* Scrollable form */}
         <form onSubmit={handleSubmit} className="overflow-y-auto px-5 py-4 flex flex-col gap-4">
@@ -1095,7 +1095,7 @@ const isEdit = !!initial;
           >
             {isSaving
               ? <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-              : <Check size={16} />
+              : <></>
             }
             {isSaving ? "Saving…" : isEdit ? "Update Address" : "Save Address"}
           </button>
@@ -1244,13 +1244,13 @@ function EmptyState({ onAdd }) {
       <div className="w-16 h-16 rounded-2xl bg-brand-surface flex items-center justify-center mb-5">
         <MapPin size={32} className="text-brand-primary" />
       </div>
-      <p className="text-[18px] font-extrabold text-text-brand mb-2">No Saved Addresses</p>
+      <p className="text-[18px] font-semibold text-gray-600 mb-2">No Saved Addresses</p>
       <p className="text-[13px] text-[#999] max-w-xs mb-7">
         Add your home, work, or other frequent delivery locations for a faster checkout experience.
       </p>
       <button
         onClick={onAdd}
-        className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-linear-to-br from-brand-primary to-brand-dark text-white font-bold text-[14px] shadow-[0_4px_16px_rgba(13,158,126,.25)] hover:scale-105 active:scale-95 transition-transform"
+        className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-linear-to-br cursor-pointer from-brand-primary to-brand-dark text-white font-bold text-[14px] shadow-[0_4px_16px_rgba(13,158,126,.25)] hover:scale-105 active:scale-95 transition-transform"
       >
         <Plus size={16} />
         Add First Address
@@ -1393,7 +1393,7 @@ export default function ManageAddress() {
         {!isLoading && sorted.length > 0 && (
           <button
             onClick={handleOpenAdd}
-            className="w-full flex cursor-pointer mb-8 items-center justify-center gap-2 py-4 rounded-2xl  bg-brand-surface text-brand-dark font-extrabold text-[15px] shadow-[0_4px_20px_rgba(13,158,126,.25)] hover:scale-[1.01] active:scale-[.98] transition-transform border-dashed border-2 border-brand-dark"
+            className="w-full flex cursor-pointer mb-8 items-center justify-center gap-2 py-4 rounded-2xl  bg-gray-100 text-brand-dark font-extrabold text-[15px] shadow-[0_4px_20px_rgba(13,158,126,.25)] hover:scale-[1.01] active:scale-[.98] transition-transform border-dashed border-2 border-brand-dark"
           >
             <Plus size={18} />
             Add New Address

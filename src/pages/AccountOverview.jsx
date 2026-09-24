@@ -1,6 +1,6 @@
 import { useOutletContext } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { BadgeCheck } from "lucide-react";
+import { BadgeCheck,LifeBuoy } from "lucide-react";
 import {
   Icon,
   SIDEBAR_MENU,
@@ -34,7 +34,7 @@ function ProfileHeader({ profile }) {
             className="w-20 h-20 rounded-full object-cover border-4 border-white shadow-lg"
           />
         ) : (
-          <div className="w-20 h-20 rounded-full bg-[#E8F8F3] border-4 border-white shadow-lg flex items-center justify-center">
+          <div className="w-20 h-20 rounded-full text-brand-surface border-4 border-white shadow-lg flex items-center justify-center">
             <span className="text-[32px] font-black text-[#0D9E7E]">{name[0]?.toUpperCase() ?? "?"}</span>
           </div>
         )}
@@ -43,7 +43,7 @@ function ProfileHeader({ profile }) {
         </div>
       </div>
       <div>
-        <p className="font-extrabold text-[22px] text-[#033428] leading-tight">{name}</p>
+        <p className="font-extrabold text-[22px] text-text-brand leading-tight">{name}</p>
         <p className="text-[13px] text-[#888] mt-0.5 flex items-center gap-1">
           {email || (phone ? `+91-${phone}` : "")}
           {phone && <BadgeCheck size={14} className="text-[#0A7560]" />}
@@ -115,10 +115,10 @@ function PointsCard({ points = 0, tier = "Silver" }) {
         </div>
         <span className="text-[10px] font-black tracking-[0.2em] text-[#aaa] uppercase">Points</span>
       </div>
-      <p className="text-[38px] font-black text-[#033428] leading-none">{points.toLocaleString()}</p>
+      <p className="text-[38px] font-black text-text-brand leading-none">{points.toLocaleString()}</p>
       <div className="mt-2 flex items-center gap-2">
         <span className="text-[12px] text-[#666]">{tier} Status Tier</span>
-        <div className="flex-1 h-1.5 bg-[#E8F8F3] rounded-full overflow-hidden">
+        <div className="flex-1 h-1.5 text-brand-surface rounded-full overflow-hidden">
           <div className="h-full rounded-full" style={{ width: `${pct}%`, background: "linear-gradient(90deg,#E8A020,#f0c050)" }} />
         </div>
         {next && <span className="text-[11px] font-semibold text-[#E8A020]">{next} →</span>}
@@ -152,12 +152,12 @@ function AccountHub() {
     { path: "/account/my-coupons",      label: "My Coupons",    icon: Icon.coupon,  iconColor: "#0D9E7E" },
     { path: "/account/gift-cards",      label: "Gift Cards",    icon: Icon.gift,    iconColor: "#0D9E7E" },
     { path: "/account/orders",          label: "Recent Orders", icon: Icon.receipt, iconColor: "#0D9E7E" },
-    { path: "/account/favourites",      label: "Favourites",    icon: Icon.heart,   iconColor: "#065443" },
+    { path: "/account/help",      label: "Help and Support",    icon: Icon.LifeBuoy,   iconColor: "#0D9E7E" },
   ];
 
   return (
     <div>
-      <p className="text-[18px] font-extrabold text-[#033428] mb-3">Account Hub</p>
+      {/* <p className="text-[18px]   text-text-brand mb-3">Account Hub</p> */}
       <div className="grid grid-cols-2 gap-3">
         {tiles.map(t => (
           <Link
@@ -165,10 +165,10 @@ function AccountHub() {
             to={t.path}
             className="flex flex-col items-start gap-3 p-4 rounded-2xl bg-white border border-[#eef5f0] hover:border-[#0D9E7E] hover:shadow-md transition-all active:scale-95"
           >
-            <div className="w-10 h-10 rounded-xl bg-[#E8F8F3] flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl text-brand-surface flex items-center justify-center">
               <span className="w-5 h-5" style={{ color: t.iconColor }}>{t.icon}</span>
             </div>
-            <span className="text-[13px] font-bold text-[#033428]">{t.label}</span>
+            <span className="text-[13px] font-bold text-text-brand">{t.label}</span>
           </Link>
         ))}
       </div>
@@ -185,8 +185,8 @@ function Preferences() {
   ];
 
   return (
-    <div>
-      <p className="text-[18px] font-extrabold text-[#033428] mb-3">Preferences</p>
+    <div className="mb-5">
+      <p className="text-sm font-semibold my-2 text-gray-500 mb-3">Preferences</p>
       <div className="flex flex-col gap-2">
         {items.map(item => (
           <Link
@@ -221,9 +221,9 @@ export default function AccountOverview() {
         <div className="bg-white rounded-2xl p-4 border border-[#eef5f0] lg:hidden">
           <ProfileHeaderSkeleton />
         </div>
-        <WalletCardSkeleton />
-        <PointsCardSkeleton />
-        <ProfileSkeleton/>
+        {/* <WalletCardSkeleton /> */}
+        {/* <PointsCardSkeleton /> */}
+        {/* <ProfileSkeleton/> */}
         <AccountHubSkeleton />
         <PreferencesSkeleton />
         <Sk className="h-12 w-full rounded-2xl" />
@@ -238,9 +238,9 @@ export default function AccountOverview() {
         <ProfileHeader profile={profile} />
       </div>
 
-      <WalletCard balance={walletBalance} />
-      <PointsCard points={points} tier={tier} />
-      <AccountProfile/>
+      {/* <WalletCard balance={walletBalance} /> */}
+      {/* <PointsCard points={points} tier={tier} /> */}
+      {/* <AccountProfile/> */}
       <AccountHub />
       <Preferences />
 
