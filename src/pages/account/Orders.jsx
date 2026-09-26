@@ -236,7 +236,7 @@ export default function Orders() {
   // Initial loading skeleton
   if (isFetchingOrders && orders.length === 0) {
     return (
-      <div className="max-w-xl mx-auto px-4 py-4">
+      <div className="max-w-xl mx-auto">
         {/* <p className="text-lg  text-[#033428] mb-4">My Orders</p> */}
         <div className="flex flex-col gap-3">
           {[1, 2, 3].map((i) => <SkeletonCard key={i} />)}
@@ -250,7 +250,7 @@ export default function Orders() {
   }
 
   return (
-    <div className="mx-auto p-4">
+    <div className="mx-auto ">
       <div className="flex flex-col gap-3">
         {orders.map((order) => (
           <OrderCard

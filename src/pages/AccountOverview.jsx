@@ -1,6 +1,6 @@
 import { useOutletContext } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { BadgeCheck,LifeBuoy } from "lucide-react";
+import { BadgeCheck,LifeBuoy,ChevronRight } from "lucide-react";
 import {
   Icon,
   SIDEBAR_MENU,
@@ -26,7 +26,7 @@ function ProfileHeader({ profile }) {
 
   return (
     <div className="flex items-center gap-4">
-      <div className="relative flex-shrink-0">
+      <div className="relative shrink-0">
         {avatarUrl ? (
           <img
             src={avatarUrl}
@@ -34,7 +34,7 @@ function ProfileHeader({ profile }) {
             className="w-20 h-20 rounded-full object-cover border-4 border-white shadow-lg"
           />
         ) : (
-          <div className="w-20 h-20 rounded-full text-brand-surface border-4 border-white shadow-lg flex items-center justify-center">
+          <div className="w-20 h-20 rounded-full text-brand-surface border-4 bg-brand-surface border-brand-primary shadow-lg flex items-center justify-center">
             <span className="text-[32px] font-black text-[#0D9E7E]">{name[0]?.toUpperCase() ?? "?"}</span>
           </div>
         )}
@@ -51,6 +51,12 @@ function ProfileHeader({ profile }) {
         {joined && (
           <p className="text-[11px] text-[#bbb] mt-1">Member since {joined}</p>
         )}
+
+<span className="text-[11px] items-center text-brand-dark ">
+          <Link to='/account/settings'>
+          Edit <ChevronRight className="inline" size={12}/>
+          </Link>
+        </span>
 
       </div>
     </div>
@@ -170,6 +176,8 @@ function AccountHub() {
             </div>
             <span className="text-[13px] font-bold text-text-brand">{t.label}</span>
           </Link>
+
+          
         ))}
       </div>
     </div>

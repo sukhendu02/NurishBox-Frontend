@@ -299,7 +299,7 @@ function ChangeContactDialog({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0a1a12]/30 px-5">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0a1a12]/30">
       <div className="w-full max-w-90 rounded-2xl bg-white p-6 shadow-xl">
         <div className="mb-4 flex items-start justify-between gap-3">
           <div>
@@ -491,12 +491,22 @@ export default function SettingsPage({
   // Seed the draft from the store exactly once, the moment the real profile
   // arrives. After that, the draft is only ever driven by the user (or by
   // `discard`) — we never overwrite it out from under an in-progress edit.
+
+  const toDateInput = (v) => {
+    if (!v) return "";
+    const d = new Date(v);
+    return Number.isNaN(d.getTime()) ? "" : d.toISOString().slice(0, 10);
+  };
+  
+  const normEnum = (v) => (v || "").toString().trim().toUpperCase();
+
+
   useEffect(() => {
     if (profile && !hasLoadedOnce) {
       
       setDraft({
         name: str(profile.name),
-        dob: str(profile.dob),
+        dob: toDateInput(profile.dob),
         dietaryPreference: profile.dietary_pref || "",
         fitnessGoal: profile.fitness_goal || "",
       });
@@ -507,7 +517,7 @@ export default function SettingsPage({
   const dirty =
     !!profile &&
     (draft.name !== str(profile.name) ||
-      draft.dob !== str(profile.dob) ||
+      draft.dob !== toDateInput(profile.dob) ||
       draft.dietaryPreference !== (profile.dietaryPreference || "") ||
       draft.fitnessGoal !== (profile.fitnessGoal || ""));
 
@@ -521,9 +531,9 @@ export default function SettingsPage({
     if (!profile) return;
     setDraft({
       name: str(profile.name),
-      dob: str(profile.dob),
-      dietaryPreference: profile.dietaryPreference || "",
-      fitnessGoal: profile.fitnessGoal || "",
+      dob: toDateInput(profile.dob),
+      dietaryPreference: profile.dietary_pref || "",
+      fitnessGoal: profile.fitness_goal || "",
     });
     setErrors({});
     setFormError("");
@@ -584,11 +594,11 @@ export default function SettingsPage({
   }
 
   return (
-    <div className="mx-auto w-full  px-2 pb-28  sm:px-2">
+    <div className="mx-auto w-full  pb-28  ">
       {/* <h1 className="mb-5 text-[20px] font-bold text-[#1a2e1a] sm:text-[22px]">Settings</h1> */}
 
       {/* Profile ---------------------------------------------------- */}
-      <section className="space-y-5 rounded-2xl border border-[#eef5f0] bg-white p-4 sm:p-5">
+      <section className="space-y-5 rounded-2xl border border-[#eef5f0] bg-white p-3">
 
         {/* Full name */}
         <div>
@@ -725,7 +735,7 @@ export default function SettingsPage({
                          bg-brand-dark px-5 text-xs font-semibold text-white transition-opacity
                          hover:opacity-90 disabled:opacity-50"
             >
-              {isSaving ? <Loader size={14} className="animate-spin" /> : <Check size={14} />}
+              {isSaving ? <Loader size={14} className="animate-spin" /> : ""}
               Save Changes
             </button>
           </div>
