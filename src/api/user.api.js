@@ -48,3 +48,7 @@ export const getMyOrders = async (page = 1, limit = 10) => {
   })
   return response.data
 }
+export const submitOrderReview = async (payload) => {
+  const response = await api.post('/user/my-orders/submit-review', payload);
+  return response.data;
+};

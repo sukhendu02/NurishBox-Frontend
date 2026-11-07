@@ -25,6 +25,8 @@ import NutritionPill from '../components/menu/NutritionPill';
 import SidebarCard from '../components/menu/SidebarCard';
 import ProductCard from '../components/menu/ProductCard';
 import KitchenStatusBanner from "../components/menu/KitchenStatusBanner"
+import Popup from '../components/ui/popup';
+import ProductDetailPopup from '../components/menu/ProductDetailPopup';
 const promoSlides = [
   {
     id: 1,
@@ -161,7 +163,17 @@ export default function Home() {
   }, [])
 
  
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
 
+  const handleProductOpen = (product) => {
+    setSelectedProduct(product);
+    setIsPopupOpen(true);
+  };
+
+  const handlePopupClose = () => {
+    setIsPopupOpen(false);
+  };
 
   ///////////////////////////////////////////
    const {
@@ -635,6 +647,7 @@ const items          = useCartStore((state) => state.items)       // ← reactiv
     const qty      = cartItem?.quantity || 0
       return (
       <ProductCard
+        onOpen={() => handleProductOpen(product)}
         key={product.id}
         product={mapProduct(product)}
         qty={qty}
@@ -657,6 +670,51 @@ const items          = useCartStore((state) => state.items)       // ← reactiv
     )
   })}
 </div>
+
+
+<ProductDetailPopup
+  product={selectedProduct ? mapProduct(selectedProduct) : null}
+  onClose={() => setSelectedProduct(null)}
+  qty={
+    items.find(
+      (i) => i.product?.id === selectedProduct?.id
+    )?.quantity || 0
+  }
+  canOrder={canOrder}
+  message={message}
+  onAdd={() => {
+    if (selectedProduct) {
+      addItem(selectedProduct.id, 1);
+    }
+  }}
+  onPlus={() => {
+    if (!selectedProduct) return;
+
+    const cartItem = items.find(
+      (i) => i.product?.id === selectedProduct.id
+    );
+
+    if (cartItem) {
+      updateQuantity(cartItem.id, cartItem.quantity + 1);
+    }
+  }}
+  onMinus={() => {
+    if (!selectedProduct) return;
+
+    const cartItem = items.find(
+      (i) => i.product?.id === selectedProduct.id
+    );
+
+    if (!cartItem) return;
+
+    if (cartItem.quantity === 1) {
+      removeItem(cartItem.id);
+    } else {
+      updateQuantity(cartItem.id, cartItem.quantity - 1);
+    }
+  }}
+/>
+
             <div ref={sentinelRef} className="h-14" />
                 {/* End of list */}
                 {!hasNext && products.length > 0 && !isLoading && (

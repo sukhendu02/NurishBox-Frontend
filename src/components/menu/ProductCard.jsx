@@ -4,6 +4,9 @@ import { useState, useEffect } from "react";
 import FoodBadge from "./FoodBadge";
 import NutritionPill from "./NutritionPill";
 import { Plus, Minus, WeightTilde } from "lucide-react";
+
+
+const stop = (e) => e.stopPropagation();
 export default function ProductCard({
   product,
   qty,
@@ -13,7 +16,7 @@ export default function ProductCard({
   onAdd,
   onMinus,
   onPlus,
- 
+  onOpen,
 }) {
 
     const [expanded, setExpanded] = useState(false)
@@ -27,8 +30,23 @@ export default function ProductCard({
 
     // B/W when not orderable for better ui
    const bwClass = !isOrderable ? 'grayscale opacity-60' : ''
+
+    const handleKeyDown = (e) => {
+    if (e.target === e.currentTarget && (e.key === "Enter" || e.key === " ")) {
+      e.preventDefault();
+      onOpen?.();
+    }
+  };
   return (
-    <article className="overflow-hidden rounded-[28px] bg-white shadow-sm ring-1 ring-black/5 transition hover:shadow-md">
+    <>
+   
+    <article 
+    role="button"
+      tabIndex={0}
+      aria-label={`View details for ${product.name}`}
+      onClick={onOpen}
+      onKeyDown={handleKeyDown}
+    className="overflow-hidden rounded-[28px] bg-white shadow-sm ring-1 ring-black/5 transition hover:shadow-md">
 
       {/* ── Outer wrapper: always column (image on top, content below) ── */}
       <div className="flex flex-col">
@@ -124,7 +142,11 @@ export default function ProductCard({
            <div className="h-4">
               {showMore && (
                 <button
-                  onClick={() => setExpanded(prev => !prev)}
+                onClick={(e) => {
+                  stop(e);
+                  setExpanded((prev) => !prev);
+                }}
+                  
                   className="text-xs cursor-pointer font-semibold text-[var(--color-brand-dark)]"
                 >
                   {expanded ? 'Less' : 'More'}
@@ -210,7 +232,11 @@ export default function ProductCard({
             {/* State 3: orderable + in stock + not in cart */}
             {canOrder && inStock && qty === 0 && (
               <button
-                onClick={onAdd}
+                // onClick={onAdd}
+                onClick={(e) => {
+                  stop(e);
+                  onAdd();
+                }}
                 className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-[var(--color-brand-dark)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--color-brand-deeper)]"
               >
                 <Plus size={16} />
@@ -222,7 +248,11 @@ export default function ProductCard({
             {canOrder && inStock && qty > 0 && (
               <div className="inline-flex items-center rounded-full bg-[var(--color-brand-dark)] p-1 text-white shadow">
                 <button
-                  onClick={onMinus}
+                    // onClick={onMinus}
+                    onClick={(e) => {
+                      stop(e);
+                      onMinus();
+                    }}
                   className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full hover:bg-white/10"
                 >
                   <Minus size={16} />
@@ -231,7 +261,11 @@ export default function ProductCard({
                   {qty}
                 </span>
                 <button
-                  onClick={onPlus}
+                  // onClick={onPlus}
+                  onClick={(e) => {
+                    stop(e);
+                    onPlus();
+                  }}
                   className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full hover:bg-white/10"
                 >
                   <Plus size={16} />
@@ -244,6 +278,13 @@ export default function ProductCard({
       </div>
 
     </article>
+
+
+
+
+
+
+     </>
 
     
   )

@@ -1,7 +1,9 @@
-import { useEffect, useCallback, useRef } from 'react'
+import { useEffect, useCallback, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useUserStore from '../../store/userStore'
 import {CircleCheck, Package2 } from 'lucide-react'
+import RateOrderPopup from '../../temp/RateOrderPopup'
+import { submitOrderReview } from '../../api/user.api'
 
 
 // ─── Status config ────────────────────────────────────────────────
@@ -72,8 +74,10 @@ function OrderItemRow({ item }) {
   )
 }
 
-function OrderCard({ order, onTrack, onRate }) {
+function OrderCard({ order, onTrack, onRate,onView ,isReviewed  }) {
   const itemCount = order.items?.length ?? 0
+
+
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm p-4">
@@ -121,7 +125,7 @@ function OrderCard({ order, onTrack, onRate }) {
             <>
            
             <button
-              onClick={() => onRate(order)}
+             onClick={() => onView(order)}
               className="text-xs px-4 py-2.5 rounded-full font-medium bg-gray-400 cursor-pointer text-white hover:bg-gray-500 transition-colors"
             >
               View Order
@@ -229,10 +233,31 @@ export default function Orders() {
     observerRef.current.observe(el)
     return () => observerRef.current?.disconnect()
   }, [loadMore])
-
-  const handleTrack = (order) => navigate(`/account/orders/track/${order.id}`)
-  const handleRate  = (order) => navigate(`/account/orders/${order.id}?rate=true`)
+  
   const handleviewOrder = (order)=> navigate(`/account/orders/${order.id}`)
+  const handleTrack = (order) => navigate(`/account/orders/track/${order.id}`)
+  const [ratingOrder, setRatingOrder] = useState(null);
+  const [reviewedOrderIds, setReviewedOrderIds] = useState([])
+  const [successMessage, setSuccessMessage] = useState('')
+  
+const handleRate = (order) => {
+  setRatingOrder(order);
+};
+
+const handleSubmitRating = async (payload) => {
+  await submitOrderReview(payload)
+
+  setReviewedOrderIds((prev) => [
+    ...prev,
+    payload.orderId,
+  ])
+
+  setRatingOrder(null)
+  setSuccessMessage('Your review has been submitted successfully!')
+}
+
+
+
   // Initial loading skeleton
   if (isFetchingOrders && orders.length === 0) {
     return (
@@ -258,8 +283,23 @@ export default function Orders() {
             order={order}
             onTrack={handleTrack}
             onRate={handleRate}
+           
+    onView={handleviewOrder}
+    isReviewed={
+      order.isReviewed ||
+      reviewedOrderIds.includes(order.id)
+    }
           />
         ))}
+
+
+
+<RateOrderPopup
+  open={Boolean(ratingOrder)}
+  order={ratingOrder}
+  onClose={() => setRatingOrder(null)}
+  onSubmit={handleSubmitRating}
+/>
       </div>
 
       {/* Infinite scroll sentinel */}
