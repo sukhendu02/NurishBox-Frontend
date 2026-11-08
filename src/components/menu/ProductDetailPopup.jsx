@@ -13,10 +13,10 @@ import { Activity,
   Plus,
   Minus,
   } from "lucide-react";
-import Popup from "../ui/popup";
-import CartControl from "../../temp/product-detail/CartControl";
-import FoodBadge from "./FoodBadge";
-import { formatPrice, getDiscount, isInStock } from "../../temp/product-detail/productUtils";
+import Popup from "../ui/Popup";
+// import CartControl from "../../temp/product-detail/CartControl";
+// import FoodBadge from "./FoodBadge";
+import { formatPrice, getDiscount, isInStock } from "../../utils/productUtils";
 
 /**
  * Product detail popup. Open it by passing a product; close it with onClose.
@@ -65,7 +65,7 @@ function ProductDetail({ product: p }) {
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
 
           <div className="absolute left-4 top-4 flex flex-wrap items-center gap-2">
-            <FoodBadge type={p.type} />
+            {/* <FoodBadge type={p.type} /> */}
             {p.goal && (
               <span className="flex items-center gap-1 rounded-full bg-[var(--color-brand-dark)]/95 px-3 py-1 text-xs font-bold text-white shadow-sm">
                 <Flame size={14} /> {p.goal}
