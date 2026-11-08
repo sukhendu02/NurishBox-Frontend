@@ -2,7 +2,7 @@ import { useEffect, useCallback, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useUserStore from '../../store/userStore'
 import {CircleCheck, Package2 } from 'lucide-react'
-import RateOrderPopup from '../../temp/RateOrderPopup'
+import RateOrderPopup from './RateOrderPopup'
 import { submitOrderReview } from '../../api/user.api'
 
 
