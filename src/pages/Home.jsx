@@ -25,7 +25,7 @@ import NutritionPill from '../components/menu/NutritionPill';
 import SidebarCard from '../components/menu/SidebarCard';
 import ProductCard from '../components/menu/ProductCard';
 import KitchenStatusBanner from "../components/menu/KitchenStatusBanner"
-import Popup from '../components/ui/popup';
+// import Popup from '../components/ui/Popup';
 import ProductDetailPopup from '../components/menu/ProductDetailPopup';
 const promoSlides = [
   {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Popup from '../../components/ui/popup';
+import Popup from '../../components/ui/Popup';
 import { Loader2 } from 'lucide-react';
 
 const RATING_LABELS = ['Poor', 'Fair', 'Good', 'Great', 'Loved it'];
